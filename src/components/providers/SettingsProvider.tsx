@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useContext, useEffect, useState, useCallback } from "react";
+import { createContext, useContext, useEffect, useRef, useState, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { playSoundRaw, SoundName } from "@/lib/sound";
 
@@ -30,19 +30,25 @@ export function useSettings() {
 export function SettingsProvider({ children }: { children: React.ReactNode }) {
   const { data: session, update } = useSession();
   const [state, setState] = useState<SettingsState>(defaults);
+  const hydratedForUserId = useRef<string | null>(null);
 
-  // Sincroniza com a sessão (que reflete o que está salvo no banco)
+  // Só sincroniza a partir da sessão UMA VEZ por usuário logado (na primeira
+  // vez que os dados dele chegam). Depois disso, quem manda é o clique do
+  // usuário — a sessão nunca mais sobrescreve uma escolha feita na tela.
   useEffect(() => {
     const u = session?.user as any;
-    if (u) {
-      setState({
-        theme: u.theme ?? "light",
-        fontSize: u.fontSize ?? "medium",
-        soundEnabled: u.soundEnabled ?? true,
-        animationsEnabled: u.animationsEnabled ?? true
-      });
-    } else {
-      // Visitante sem login: usa preferências salvas localmente nesse navegador
+    if (u?.id) {
+      if (hydratedForUserId.current !== u.id) {
+        setState({
+          theme: u.theme ?? "light",
+          fontSize: u.fontSize ?? "medium",
+          soundEnabled: u.soundEnabled ?? true,
+          animationsEnabled: u.animationsEnabled ?? true
+        });
+        hydratedForUserId.current = u.id;
+      }
+    } else if (!u) {
+      hydratedForUserId.current = null;
       try {
         const raw = localStorage.getItem("ra_guest_settings");
         if (raw) setState({ ...defaults, ...JSON.parse(raw) });
@@ -50,7 +56,6 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
     }
   }, [session]);
 
-  // Aplica no <html> (tema, tamanho de fonte, e desliga animações via classe)
   useEffect(() => {
     const root = document.documentElement;
     root.setAttribute("data-theme", state.theme);
@@ -70,7 +75,9 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(patch)
       });
-      await update();
+      // Atualiza a sessão em segundo plano só pra outros lugares do site
+      // (ex: avatar no menu) — não afeta mais o estado local acima.
+      update();
     } else {
       try {
         const raw = localStorage.getItem("ra_guest_settings");

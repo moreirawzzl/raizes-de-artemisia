@@ -13,6 +13,8 @@ export default function EsqueciSenhaPage() {
   const [email, setEmail] = useState("");
   const [devCode, setDevCode] = useState<string | null>(null);
   const [showCodeSeconds, setShowCodeSeconds] = useState(10);
+  const [emailSent, setEmailSent] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
   const [code, setCode] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -38,6 +40,8 @@ export default function EsqueciSenhaPage() {
     setLoading(false);
     setStep("codigo");
     if (data.devCode) { setDevCode(data.devCode); setShowCodeSeconds(10); }
+    else if (data.emailed) { setEmailSent(true); }
+    else if (data.emailed) { setEmailSent(true); }
   }
 
   async function confirmReset(e: React.FormEvent) {
@@ -64,6 +68,16 @@ export default function EsqueciSenhaPage() {
 
         {error && <div className="mb-4 rounded-lg bg-[#F6E7E1] px-3 py-2 text-left text-xs text-[#8a4a3a]">{error}</div>}
 
+        {emailSent && (
+          <div className="mb-4 rounded-lg bg-[#EAF0E6] px-3 py-3 text-left text-xs text-verde-principal">
+            Enviamos um código para o seu e-mail. Confira a caixa de entrada (e o spam).
+          </div>
+        )}
+        {emailSent && (
+          <div className="mb-4 rounded-lg bg-[#EAF0E6] px-3 py-3 text-left text-xs text-verde-principal">
+            Enviamos um código para o seu e-mail. Confira a caixa de entrada (e o spam).
+          </div>
+        )}
         {devCode && (
           <div className="mb-4 rounded-lg bg-[#EAF0E6] px-3 py-3 text-left text-xs text-verde-principal">
             <p className="mb-1 font-semibold">
