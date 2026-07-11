@@ -52,6 +52,7 @@ return {
   ],
   callbacks: {
     async signIn({ user, account }) {
+      try {
       if (account?.provider === "google") {
         const email = user.email!;
         const existing = await prisma.user.findUnique({ where: { email } });
@@ -80,6 +81,10 @@ return {
         }
       }
       return true;
+      } catch (err) {
+        console.error("=== ERRO NO SIGNIN DO GOOGLE ===", err);
+        return false;
+      }
     },
     async jwt({ token, user, trigger }) {
       if (user) {
