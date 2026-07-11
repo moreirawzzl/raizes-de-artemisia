@@ -38,7 +38,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           
           
           
-        };
+        },
             }),
     // Login com Google: exige GOOGLE_CLIENT_ID e GOOGLE_CLIENT_SECRET no .env
     // (crie em https://console.cloud.google.com/apis/credentials). Sem essas
