@@ -23,12 +23,11 @@ export function CartClient({ initialItems }: { initialItems: CartItem[] }) {
   const [couponInput, setCouponInput] = useState("");
   const [coupon, setCoupon] = useState<{ code: string; percentage: number } | null>(null);
   const [couponMsg, setCouponMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
+  const [fallbackWhatsappUrl, setFallbackWhatsappUrl] = useState<string | null>(null);
   const router = useRouter();
   const { playSound } = useSettings();
 
-  // Tudo aqui é recalculado a cada render a partir do estado atual da tela
-  // (fonte única da verdade), então subtotal/desconto/total sempre refletem
-  // a última quantidade que o cliente escolheu — em tempo real.
   const subtotal = useMemo(() => items.reduce((s, i) => s + parseFloat(i.price) * i.quantity, 0), [items]);
   const discount = coupon ? subtotal * (coupon.percentage / 100) : 0;
   const total = Math.max(0, subtotal - discount);
@@ -76,32 +75,58 @@ export function CartClient({ initialItems }: { initialItems: CartItem[] }) {
   async function checkout() {
     if (isSyncing || checkingOut || items.length === 0) return;
     setCheckingOut(true);
+    setCheckoutError(null);
+    setFallbackWhatsappUrl(null);
 
-    // Monta a mensagem e o total AGORA, com o que está na tela — não espera
-    // nenhuma resposta do servidor antes de abrir o WhatsApp, evitando que o
-    // navegador bloqueie o pop-up.
     playSound("checkout");
     const win = window.open("about:blank", "_blank");
 
-    const res = await fetch("/api/checkout", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        items: items.map((i) => ({ productId: i.productId, quantity: i.quantity })),
-        couponCode: coupon?.code
-      })
-    });
-    const data = await res.json();
+    let res: Response;
+    try {
+      res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: items.map((i) => ({ productId: i.productId, quantity: i.quantity })),
+          couponCode: coupon?.code
+        })
+      });
+    } catch (err) {
+      win?.close();
+      setCheckingOut(false);
+      setCheckoutError("Erro de conexão. Verifique sua internet e tente novamente.");
+      playSound("error");
+      return;
+    }
+
+    const data = await res.json().catch(() => ({}));
     setCheckingOut(false);
 
     if (res.ok && data.whatsappUrl) {
-      if (win) win.location.href = data.whatsappUrl;
-      else window.open(data.whatsappUrl, "_blank");
+      let opened = false;
+      if (win) {
+        try {
+          win.location.href = data.whatsappUrl;
+          opened = true;
+        } catch {
+          opened = false;
+        }
+      }
+      if (!opened) {
+        const popup = window.open(data.whatsappUrl, "_blank");
+        opened = !!popup && !popup.closed;
+      }
+
       setItems([]);
       router.refresh();
+
+      if (!opened) {
+        setFallbackWhatsappUrl(data.whatsappUrl);
+      }
     } else {
       win?.close();
       playSound("error");
+      setCheckoutError(data.error || "Não foi possível finalizar o pedido. Tente novamente.");
     }
   }
 
@@ -136,7 +161,6 @@ export function CartClient({ initialItems }: { initialItems: CartItem[] }) {
         })}
       </div>
 
-      {/* Cupom de desconto */}
       <div className="mt-5 flex gap-2">
         <Input placeholder="Cupom de desconto" value={couponInput} onChange={(e) => setCouponInput(e.target.value.toUpperCase())} />
         <Button type="button" variant="outline" onClick={applyCoupon}>Aplicar</Button>
@@ -163,6 +187,17 @@ export function CartClient({ initialItems }: { initialItems: CartItem[] }) {
       <Button variant="whatsapp" disabled={isSyncing || checkingOut} onClick={checkout} className="mt-5 w-full">
         {checkingOut ? "Redirecionando..." : isSyncing ? "Salvando alterações..." : "Finalizar no WhatsApp"}
       </Button>
+
+      {checkoutError && (
+        <p className="mt-3 rounded-lg bg-[#F7E9E4] px-3 py-2 text-center text-xs text-[#8a4a3a]">{checkoutError}</p>
+      )}
+
+      {fallbackWhatsappUrl && (
+        <div className="mt-3 rounded-lg bg-[#F3E6C8] px-3 py-3 text-center text-xs text-[#8A6D1F]">
+          <p className="mb-2">Seu pedido foi registrado! Seu navegador bloqueou a abertura automática do WhatsApp.</p>
+          <a href={fallbackWhatsappUrl} target="_blank" rel="noopener noreferrer" className="inline-block rounded-full bg-verde-principal px-5 py-2 text-white">Abrir WhatsApp agora</a>
+        </div>
+      )}
     </div>
   );
 }
