@@ -10,6 +10,10 @@ import { buildWhatsappCheckoutUrl } from "@/lib/whatsapp";
  * uma alteração de quantidade feita bem antes de finalizar não refletia
  * a tempo no total/mensagem final por causa de uma corrida entre o
  * PATCH de quantidade e o checkout.
+ *
+ * IMPORTANTE: o pedido nasce como AWAITING_PAYMENT (aguardando pagamento).
+ * Ele só conta como venda de verdade (salesCount / receita) quando a
+ * administradora confirmar o pagamento em /admin/pedidos.
  */
 export async function POST(req: Request) {
   const user = await getCurrentUser();
@@ -18,7 +22,6 @@ export async function POST(req: Request) {
   const body = await req.json().catch(() => ({}));
   const clientItems: { productId: string; quantity: number }[] = body.items || [];
   const couponCode: string | undefined = body.couponCode;
-
   if (!clientItems.length) return NextResponse.json({ error: "Carrinho vazio" }, { status: 400 });
 
   const productIds = clientItems.map((i) => i.productId);
@@ -28,13 +31,12 @@ export async function POST(req: Request) {
   const validItems = clientItems
     .map((i) => ({ ...i, product: productMap.get(i.productId) }))
     .filter((i) => i.product && i.quantity > 0);
-
   if (!validItems.length) return NextResponse.json({ error: "Carrinho vazio" }, { status: 400 });
 
   const subtotal = validItems.reduce((s, i) => s + i.product!.price * i.quantity, 0);
-
   let discount = 0;
   let appliedCouponCode: string | null = null;
+
   if (couponCode) {
     const coupon = await prisma.coupon.findUnique({ where: { code: couponCode.trim().toUpperCase() } });
     if (coupon && coupon.active && coupon.validUntil >= new Date()) {
@@ -42,8 +44,8 @@ export async function POST(req: Request) {
       appliedCouponCode = coupon.code;
     }
   }
-  const total = Math.max(0, subtotal - discount);
 
+  const total = Math.max(0, subtotal - discount);
   const whatsappUrl = buildWhatsappCheckoutUrl(
     validItems.map((i) => ({ name: i.product!.name, quantity: i.quantity })),
     formatMoney(total)
@@ -63,6 +65,7 @@ export async function POST(req: Request) {
         discount,
         couponCode: appliedCouponCode,
         total,
+        status: "AWAITING_PAYMENT",
         whatsappText: whatsappUrl,
         items: {
           create: validItems.map((i) => ({
@@ -73,9 +76,6 @@ export async function POST(req: Request) {
         }
       }
     }),
-    ...validItems.map((i) =>
-      prisma.product.update({ where: { id: i.productId }, data: { salesCount: { increment: i.quantity } } })
-    ),
     prisma.cartItem.deleteMany({ where: { cartId: cart.id } })
   ]);
 

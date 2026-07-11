@@ -79,11 +79,15 @@ export default async function AdminDashboard() {
         </div>
 
         <div className="rounded-xl2 border border-bege-claro bg-white p-6">
-          <h2 className="mb-3 font-display text-xl text-verde-principal">Últimos pedidos</h2>
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="font-display text-xl text-verde-principal">Últimos pedidos</h2>
+            <Link href="/admin/pedidos" className="text-xs text-verde-secundario underline">Ver todos</Link>
+          </div>
           <ul className="space-y-2 text-sm">
             {orders.map((o) => (
               <li key={o.id} className="flex justify-between border-b border-[#f0ece0] pb-1.5">
-                <span>{o.user.username}</span><span className="text-verde-secundario">{formatMoney(o.total.toString())}</span>
+                <span>{o.user.username} <span className="text-[10px] text-bege-escuro">({o.status === "PAID" ? "pago" : o.status === "CANCELED" ? "cancelado" : "aguardando"})</span></span>
+                <span className="text-verde-secundario">{formatMoney(o.total.toString())}</span>
               </li>
             ))}
             {orders.length === 0 && <li className="text-verde-secundario">Nenhum pedido ainda.</li>}

@@ -1,0 +1,7 @@
+Ache a função DELETE nesse arquivo (src/app/api/products/[id]/route.ts) e troque:
+
+  await prisma.product.delete({ where: { id } });
+
+por:
+
+  await prisma.product.update({ where: { id }, data: { ativo: false } });
