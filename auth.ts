@@ -27,14 +27,20 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!valid) return null;
 
         return {
-          id: user.id,
-          email: user.email,
-          name: user.username,
-          role: user.role,
-          image: user.avatarUrl
+          return {
+  id: user.id,
+  username: user.username,
+  email: user.email,
+  name: user.name,
+  role: user.role,
+  image: user.image
+}
+          
+          
+          
+          
         };
-      }
-    }),
+            }),
     // Login com Google: exige GOOGLE_CLIENT_ID e GOOGLE_CLIENT_SECRET no .env
     // (crie em https://console.cloud.google.com/apis/credentials). Sem essas
     // chaves configuradas, o botão "Entrar com Google" simplesmente não funciona
