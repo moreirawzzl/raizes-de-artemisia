@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body {
+  background: #F8F6F1;
+  color: #556B4F;
+}
+
+::selection { background: #DCCFB9; }
+
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-thumb { background: #C8BDAA; border-radius: 10px; }
+
+.font-display { font-family: var(--font-cormorant), serif; }
+.font-body { font-family: var(--font-montserrat), sans-serif; }
+
+/* ============ Tamanho de fonte (Configurações) ============ */
+html[data-font-size="small"] { font-size: 14px; }
+html[data-font-size="medium"] { font-size: 16px; }
+html[data-font-size="large"] { font-size: 18px; }
+
+/* ============ Desativar animações (Configurações) ============ */
+.no-animations *, .no-animations *::before, .no-animations *::after {
+  transition-duration: 0s !important;
+  animation-duration: 0s !important;
+  animation-delay: 0s !important;
+}
+
+/* ============ Tema escuro ============
+   Mantém a mesma identidade da marca (verde principal #556B4F, verde
+   secundário #8A9A7B, bege claro/escuro), só invertendo as superfícies
+   para tons escuros e elegantes — nada de preto puro. */
+html[data-theme="dark"] {
+  color-scheme: dark;
+}
+html[data-theme="dark"] body { background: #232A20; color: #E4E1D6; }
+html[data-theme="dark"] .bg-fundo { background-color: #232A20 !important; }
+html[data-theme="dark"] .bg-white { background-color: #2C3428 !important; }
+html[data-theme="dark"] .border-bege-claro { border-color: #3E4838 !important; }
+html[data-theme="dark"] .border-bege-escuro { border-color: #4A5542 !important; }
+html[data-theme="dark"] .text-verde-principal { color: #CBD8C2 !important; }
+html[data-theme="dark"] .text-verde-secundario { color: #A9B89C !important; }
+html[data-theme="dark"] .text-bege-escuro { color: #8E9A82 !important; }
+html[data-theme="dark"] .bg-verde-principal { background-color: #7C9271 !important; color: #1B2118 !important; }
+html[data-theme="dark"] .shadow-soft { box-shadow: 0 8px 30px rgba(0,0,0,0.35); }
+html[data-theme="dark"] .shadow-strong { box-shadow: 0 14px 40px rgba(0,0,0,0.5); }
+html[data-theme="dark"] ::-webkit-scrollbar-thumb { background: #4A5542; }
+html[data-theme="dark"] .rounded-xl2.border,
+html[data-theme="dark"] input,
+html[data-theme="dark"] textarea,
+html[data-theme="dark"] select { color: #E4E1D6; }
+html[data-theme="dark"] input::placeholder,
+html[data-theme="dark"] textarea::placeholder { color: #7A8570; }
