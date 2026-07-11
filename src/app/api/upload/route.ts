@@ -10,16 +10,18 @@ export async function POST(req: Request) {
     }
 
     const formData = await req.formData();
-    const file = formData.get("file") as File | null;
-    if (!file) {
+    const files = formData.getAll("files") as File[];
+    if (!files || files.length === 0) {
       return NextResponse.json({ error: "Nenhum arquivo enviado" }, { status: 400 });
     }
 
-    const blob = await put(`produtos/${Date.now()}-${file.name}`, file, {
-      access: "public",
-    });
+    const uploaded = await Promise.all(
+      files.map((file) =>
+        put(`produtos/${Date.now()}-${file.name}`, file, { access: "public" })
+      )
+    );
 
-    return NextResponse.json({ url: blob.url });
+    return NextResponse.json({ urls: uploaded.map((b) => b.url) });
   } catch (err) {
     console.error(err);
     return NextResponse.json({ error: "Erro ao enviar arquivo" }, { status: 500 });
