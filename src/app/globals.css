@@ -1,3 +1,4 @@
+cat > src/app/globals.css << 'EOF'
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -27,28 +28,35 @@ html[data-font-size="large"] { font-size: 18px; }
   animation-delay: 0s !important;
 }
 
+/* ============ Tema claro: mais legibilidade no texto secundário ============ */
+html:not([data-theme="dark"]) .text-verde-secundario {
+  color: #6E7D63;
+}
+
 /* ============ Tema escuro ============
-   Mantém a mesma identidade da marca (verde principal #556B4F, verde
-   secundário #8A9A7B, bege claro/escuro), só invertendo as superfícies
-   para tons escuros e elegantes — nada de preto puro. */
+   Mais fechado e sombrio (quase preto, com leve tom verde), mantendo a
+   identidade da marca só nos acentos (verde principal, dourado sutil). */
 html[data-theme="dark"] {
   color-scheme: dark;
+  background: #14170F;
 }
-html[data-theme="dark"] body { background: #232A20; color: #E4E1D6; }
-html[data-theme="dark"] .bg-fundo { background-color: #232A20 !important; }
-html[data-theme="dark"] .bg-white { background-color: #2C3428 !important; }
-html[data-theme="dark"] .border-bege-claro { border-color: #3E4838 !important; }
-html[data-theme="dark"] .border-bege-escuro { border-color: #4A5542 !important; }
-html[data-theme="dark"] .text-verde-principal { color: #CBD8C2 !important; }
-html[data-theme="dark"] .text-verde-secundario { color: #A9B89C !important; }
-html[data-theme="dark"] .text-bege-escuro { color: #8E9A82 !important; }
-html[data-theme="dark"] .bg-verde-principal { background-color: #7C9271 !important; color: #1B2118 !important; }
-html[data-theme="dark"] .shadow-soft { box-shadow: 0 8px 30px rgba(0,0,0,0.35); }
-html[data-theme="dark"] .shadow-strong { box-shadow: 0 14px 40px rgba(0,0,0,0.5); }
-html[data-theme="dark"] ::-webkit-scrollbar-thumb { background: #4A5542; }
+html[data-theme="dark"] body { background: #14170F; color: #DCE3D2; }
+html[data-theme="dark"] .bg-fundo { background-color: #14170F !important; }
+html[data-theme="dark"] .bg-fundo\/90 { background-color: rgba(20, 23, 15, 0.9) !important; }
+html[data-theme="dark"] .bg-white { background-color: #1C2216 !important; }
+html[data-theme="dark"] .border-bege-claro { border-color: #2B331F !important; }
+html[data-theme="dark"] .border-bege-escuro { border-color: #384128 !important; }
+html[data-theme="dark"] .text-verde-principal { color: #D7E0CC !important; }
+html[data-theme="dark"] .text-verde-secundario { color: #93A583 !important; }
+html[data-theme="dark"] .text-bege-escuro { color: #7C8870 !important; }
+html[data-theme="dark"] .bg-verde-principal { background-color: #7FA36E !important; color: #12160D !important; }
+html[data-theme="dark"] .shadow-soft { box-shadow: 0 8px 30px rgba(0,0,0,0.55); }
+html[data-theme="dark"] .shadow-strong { box-shadow: 0 14px 40px rgba(0,0,0,0.7); }
+html[data-theme="dark"] ::-webkit-scrollbar-thumb { background: #384128; }
 html[data-theme="dark"] .rounded-xl2.border,
 html[data-theme="dark"] input,
 html[data-theme="dark"] textarea,
-html[data-theme="dark"] select { color: #E4E1D6; }
+html[data-theme="dark"] select { color: #DCE3D2; }
 html[data-theme="dark"] input::placeholder,
-html[data-theme="dark"] textarea::placeholder { color: #7A8570; }
+html[data-theme="dark"] textarea::placeholder { color: #5E6854; }
+EOF
