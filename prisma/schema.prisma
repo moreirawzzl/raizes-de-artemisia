@@ -140,6 +140,7 @@ model CartItem {
 
 model Order {
   id           String      @id @default(cuid())
+  orderNumber  Int         @unique @default(autoincrement())
   userId       String
   user         User        @relation(fields: [userId], references: [id])
   items        OrderItem[]
@@ -148,6 +149,7 @@ model Order {
   couponCode   String?
   total        Float
   status       String      @default("AWAITING_PAYMENT")
+  confirmedAt  DateTime?
   whatsappText String?
   createdAt    DateTime    @default(now())
 }
