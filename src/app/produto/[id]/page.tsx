@@ -23,7 +23,7 @@ export default async function ProdutoPage({ params }: { params: Promise<{ id: st
   return (
     <main className="mx-auto max-w-5xl px-6 py-10">
       <ViewTracker productId={product.id} />
-      <div className="grid gap-10 md:grid-cols-2">
+      <div className="grid gap-10 md:grid-cols-2 items-start">
         <div className="overflow-hidden rounded-xl2 border border-bege-claro bg-white">
           <div className="relative aspect-[4/3] w-full bg-bege-claro">
             <Image src={product.images[0]?.url || "/images/monogram.jpg"} alt={product.name} fill className="object-cover" />
