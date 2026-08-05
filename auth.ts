@@ -7,7 +7,7 @@ import { loginSchema } from "@/lib/password";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true,
-  session: { strategy: "jwt" },
+  session: { strategy: "jwt", maxAge: 60 * 60 * 24 },
   pages: { signIn: "/login" },
   providers: [
     Credentials({

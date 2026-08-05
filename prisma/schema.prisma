@@ -161,3 +161,8 @@ model OrderItem {
   quantity  Int
   unitPrice Float
 }
+
+model ShopSettings {
+  id             String    @id @default("main")
+  revenueResetAt DateTime?
+}

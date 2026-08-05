@@ -20,6 +20,7 @@ export async function Navbar() {
 
         <nav className="hidden gap-6 text-sm text-verde-principal font-body md:flex">
           <Link href="/loja" className="hover:text-verde-secundario">Loja</Link>
+          <Link href="/favoritos" className="hover:text-verde-secundario">Favoritos</Link>
           {user?.role === "ADMIN" && <Link href="/admin" className="hover:text-verde-secundario">Admin</Link>}
         </nav>
 

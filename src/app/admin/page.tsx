@@ -2,19 +2,31 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { StatCard } from "@/components/admin/StatCard";
 import { formatMoney } from "@/lib/format";
+import { ResetRevenueButton } from "@/components/admin/ResetRevenueButton";
+
+const PAID_STATUSES = ["PAID", "CONFIRMED"];
 
 export default async function AdminDashboard() {
-  const [totalUsers, totalProducts, orders, products, materials] = await Promise.all([
+  const shopSettings = await prisma.shopSettings.findUnique({ where: { id: "main" } });
+  const revenueResetAt = shopSettings?.revenueResetAt ?? null;
+
+  const [totalUsers, totalProducts, orders, products, materials, paidOrders] = await Promise.all([
     prisma.user.count({ where: { role: "USER" } }),
     prisma.product.count(),
     prisma.order.findMany({ include: { user: true }, orderBy: { createdAt: "desc" }, take: 8 }),
     prisma.product.findMany(),
-    prisma.materialCost.findMany()
+    prisma.materialCost.findMany(),
+    prisma.order.findMany({
+      where: {
+        status: { in: PAID_STATUSES },
+        ...(revenueResetAt ? { createdAt: { gt: revenueResetAt } } : {})
+      }
+    })
   ]);
 
   const totalViews = products.reduce((a, p) => a + p.viewCount, 0);
   const totalSales = products.reduce((a, p) => a + p.salesCount, 0);
-  const revenue = products.reduce((a, p) => a + p.salesCount * Number(p.price), 0);
+  const revenue = paidOrders.reduce((a, o) => a + o.total, 0);
   const materialCosts = materials.reduce((a, m) => a + m.amount, 0);
   const netRevenue = revenue - materialCosts;
 
@@ -33,6 +45,16 @@ export default async function AdminDashboard() {
         <StatCard label="Vendas" value={totalSales} />
         <StatCard label="Receita bruta" value={formatMoney(revenue)} />
       </div>
+
+      <div className="mb-3 flex items-center gap-3">
+        <ResetRevenueButton />
+        {revenueResetAt && (
+          <span className="text-[11px] text-bege-escuro">
+            Contando desde {new Date(revenueResetAt).toLocaleString("pt-BR")}
+          </span>
+        )}
+      </div>
+
       <div className="mb-10 grid grid-cols-2 gap-4 sm:grid-cols-3">
         <StatCard label="Custo de materiais" value={formatMoney(materialCosts)} />
         <StatCard label="Receita líquida" value={formatMoney(netRevenue)} />
@@ -86,8 +108,8 @@ export default async function AdminDashboard() {
           <ul className="space-y-2 text-sm">
             {orders.map((o) => (
               <li key={o.id} className="flex justify-between border-b border-[#f0ece0] pb-1.5">
-                <span>{o.user.username} <span className="text-[10px] text-bege-escuro">({o.status === "PAID" ? "pago" : o.status === "CANCELED" ? "cancelado" : "aguardando"})</span></span>
-                <span className="text-verde-secundario">{formatMoney(o.total.toString())}</span>
+                <span>{o.user.username} <span className="text-[10px] text-bege-escuro">({PAID_STATUSES.includes(o.status) ? "pago" : o.status === "CANCELED" ? "cancelado" : "aguardando"})</span></span>
+                <span className="text-verde-secundario">{formatMoney(o.total)}</span>
               </li>
             ))}
             {orders.length === 0 && <li className="text-verde-secundario">Nenhum pedido ainda.</li>}
