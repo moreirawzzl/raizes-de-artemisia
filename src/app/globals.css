@@ -7,62 +7,186 @@ html, body {
   color: #556B4F;
 }
 
-::selection { background: #DCCFB9; }
+::selection {
+  background: #DCCFB9;
+}
 
-::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-thumb { background: #C8BDAA; border-radius: 10px; }
+::-webkit-scrollbar {
+  width: 8px;
+}
 
-.font-display { font-family: var(--font-cormorant), serif; }
-.font-body { font-family: var(--font-montserrat), sans-serif; }
+::-webkit-scrollbar-thumb {
+  background: #C8BDAA;
+  border-radius: 10px;
+}
+
+.font-display {
+  font-family: var(--font-cormorant), serif;
+}
+
+.font-body {
+  font-family: var(--font-montserrat), sans-serif;
+}
 
 /* ============ Tamanho de fonte (Configurações) ============ */
-html[data-font-size="small"] { font-size: 14px; }
-html[data-font-size="medium"] { font-size: 16px; }
-html[data-font-size="large"] { font-size: 18px; }
+
+html[data-font-size="small"] {
+  font-size: 14px;
+}
+
+html[data-font-size="medium"] {
+  font-size: 16px;
+}
+
+html[data-font-size="large"] {
+  font-size: 18px;
+}
 
 /* ============ Desativar animações (Configurações) ============ */
-.no-animations *, .no-animations *::before, .no-animations *::after {
+
+.no-animations *,
+.no-animations *::before,
+.no-animations *::after {
   transition-duration: 0s !important;
   animation-duration: 0s !important;
   animation-delay: 0s !important;
 }
 
 /* ============ Tema claro: mais legibilidade no texto secundário ============ */
+
 html:not([data-theme="dark"]) .text-verde-secundario {
   color: #6E7D63;
 }
 
-/* ============ Tema escuro ============
-   Mais fechado e sombrio (quase preto, com leve tom verde), mantendo a
-   identidade da marca só nos acentos (verde principal, dourado sutil). */
+/* ============ Tema escuro ============ */
+
 html[data-theme="dark"] {
   color-scheme: dark;
   background: #14170F;
 }
-html[data-theme="dark"] body { background: #14170F; color: #DCE3D2; }
-html[data-theme="dark"] .bg-fundo { background-color: #14170F !important; }
-html[data-theme="dark"] .bg-fundo\/90 { background-color: rgba(20, 23, 15, 0.9) !important; }
-html[data-theme="dark"] .bg-white { background-color: #1C2216 !important; }
-html[data-theme="dark"] .border-bege-claro { border-color: #2B331F !important; }
-html[data-theme="dark"] .border-bege-escuro { border-color: #384128 !important; }
-html[data-theme="dark"] .text-verde-principal { color: #D7E0CC !important; }
-html[data-theme="dark"] .text-verde-secundario { color: #93A583 !important; }
-html[data-theme="dark"] .text-bege-escuro { color: #7C8870 !important; }
-html[data-theme="dark"] .bg-verde-principal { background-color: #7FA36E !important; color: #12160D !important; }
-html[data-theme="dark"] .shadow-soft { box-shadow: 0 8px 30px rgba(0,0,0,0.55); }
-html[data-theme="dark"] .shadow-strong { box-shadow: 0 14px 40px rgba(0,0,0,0.7); }
-html[data-theme="dark"] ::-webkit-scrollbar-thumb { background: #384128; }
+
+html[data-theme="dark"] body {
+  background: #14170F;
+  color: #DCE3D2;
+}
+
+html[data-theme="dark"] .bg-fundo {
+  background-color: #14170F !important;
+}
+
+html[data-theme="dark"] .bg-fundo\/90 {
+  background-color: rgba(20, 23, 15, 0.9) !important;
+}
+
+html[data-theme="dark"] .bg-white {
+  background-color: #1C2216 !important;
+}
+
+html[data-theme="dark"] .border-bege-claro {
+  border-color: #2B331F !important;
+}
+
+html[data-theme="dark"] .border-bege-escuro {
+  border-color: #384128 !important;
+}
+
+html[data-theme="dark"] .text-verde-principal {
+  color: #D7E0CC !important;
+}
+
+html[data-theme="dark"] .text-verde-secundario {
+  color: #93A583 !important;
+}
+
+html[data-theme="dark"] .text-bege-escuro {
+  color: #7C8870 !important;
+}
+
+html[data-theme="dark"] .bg-verde-principal {
+  background-color: #7FA36E !important;
+  color: #12160D !important;
+}
+
+html[data-theme="dark"] .shadow-soft {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.55);
+}
+
+html[data-theme="dark"] .shadow-strong {
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.7);
+}
+
+html[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: #384128;
+}
+
 html[data-theme="dark"] .rounded-xl2.border,
 html[data-theme="dark"] input,
 html[data-theme="dark"] textarea,
-html[data-theme="dark"] select { color: #DCE3D2; }
+html[data-theme="dark"] select {
+  color: #DCE3D2;
+}
+
 html[data-theme="dark"] input::placeholder,
-html[data-theme="dark"] textarea::placeholder { color: #5E6854; }
+html[data-theme="dark"] textarea::placeholder {
+  color: #5E6854;
+}
 
 /* ============ Tema claro: mais contraste/visibilidade ============ */
+
 html:not([data-theme="dark"]) .text-bege-escuro {
   color: #9C8B70;
 }
+
 html:not([data-theme="dark"]) .border-bege-claro {
   border-color: #C9B99E;
+}
+
+/* =========================================================
+   Menu transparente somente na página Sobre Nós
+   ========================================================= */
+
+html[data-force-dark-header="1"] header {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+
+  background-color: transparent !important;
+  border-color: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Links e textos do menu */
+
+html[data-force-dark-header="1"] header a,
+html[data-force-dark-header="1"] header button,
+html[data-force-dark-header="1"] header .text-verde-principal,
+html[data-force-dark-header="1"] header .text-verde-secundario {
+  color: #F4EFE4 !important;
+}
+
+/* Hover */
+
+html[data-force-dark-header="1"] header a:hover,
+html[data-force-dark-header="1"] header button:hover {
+  color: #C3B387 !important;
+}
+
+/* Borda do avatar */
+
+html[data-force-dark-header="1"] header img {
+  border-color: rgba(244, 239, 228, 0.4) !important;
+}
+
+/* Não aplicar invert/filter nas imagens */
+
+html[data-force-dark-header="1"] header img {
+  filter: none !important;
+}
+
+/* Logo */
+
+html[data-force-dark-header="1"] header .navbar-logo {
+  border-color: transparent !important;
 }

@@ -6,14 +6,12 @@ import { buildWhatsappCheckoutUrl } from "@/lib/whatsapp";
 
 /**
  * Recebe os itens exatamente como estão na tela do cliente (fonte da
- * verdade) em vez de re-ler o carrinho do banco — isso evita o bug em que
- * uma alteração de quantidade feita bem antes de finalizar não refletia
- * a tempo no total/mensagem final por causa de uma corrida entre o
- * PATCH de quantidade e o checkout.
+ * verdade), cria o pedido como AWAITING_PAYMENT.
  *
- * IMPORTANTE: o pedido nasce como AWAITING_PAYMENT (aguardando pagamento).
- * Ele só conta como venda de verdade (salesCount / receita) quando a
- * administradora confirmar o pagamento em /admin/pedidos.
+ * IMPORTANTE: o carrinho NÃO é limpo aqui. Ele só é limpo quando a
+ * administradora confirmar o pagamento (em /admin/pedidos) — assim o
+ * produto continua "no carrinho" até o pagamento ser finalizado de
+ * verdade, exatamente como pedido.
  */
 export async function POST(req: Request) {
   const user = await getCurrentUser();
@@ -51,33 +49,24 @@ export async function POST(req: Request) {
     formatMoney(total)
   );
 
-  const cart = await prisma.cart.upsert({
-    where: { userId: (user as any).id },
-    update: {},
-    create: { userId: (user as any).id }
+  const order = await prisma.order.create({
+    data: {
+      userId: (user as any).id,
+      subtotal,
+      discount,
+      couponCode: appliedCouponCode,
+      total,
+      status: "AWAITING_PAYMENT",
+      whatsappText: whatsappUrl,
+      items: {
+        create: validItems.map((i) => ({
+          productId: i.productId,
+          quantity: i.quantity,
+          unitPrice: i.product!.price
+        }))
+      }
+    }
   });
 
-  await prisma.$transaction([
-    prisma.order.create({
-      data: {
-        userId: (user as any).id,
-        subtotal,
-        discount,
-        couponCode: appliedCouponCode,
-        total,
-        status: "AWAITING_PAYMENT",
-        whatsappText: whatsappUrl,
-        items: {
-          create: validItems.map((i) => ({
-            productId: i.productId,
-            quantity: i.quantity,
-            unitPrice: i.product!.price
-          }))
-        }
-      }
-    }),
-    prisma.cartItem.deleteMany({ where: { cartId: cart.id } })
-  ]);
-
-  return NextResponse.json({ whatsappUrl, total, discount });
+  return NextResponse.json({ whatsappUrl, total, discount, orderId: order.id });
 }

@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { StatCard } from "@/components/admin/StatCard";
 import { formatMoney } from "@/lib/format";
 import { ResetRevenueButton } from "@/components/admin/ResetRevenueButton";
+import { RevenueRangeSearch } from "@/components/admin/RevenueRangeSearch";
 
 const PAID_STATUSES = ["PAID", "CONFIRMED"];
 
@@ -23,7 +24,9 @@ export default async function AdminDashboard() {
       }
     })
   ]);
-
+<div className="mb-10">
+  <RevenueRangeSearch />
+</div>
   const totalViews = products.reduce((a, p) => a + p.viewCount, 0);
   const totalSales = products.reduce((a, p) => a + p.salesCount, 0);
   const revenue = paidOrders.reduce((a, o) => a + o.total, 0);
