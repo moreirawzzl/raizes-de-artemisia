@@ -22,7 +22,14 @@ export default function LoginPage() {
     setError(null);
     const res = await signIn("credentials", { email, password, redirect: false });
     setLoading(false);
-    if (res?.error) { setError("E-mail ou senha incorretos."); return; }
+    if (res?.error) { 
+      if (res.error === "BANNED" || res.error.includes("BANNED")) {
+        setError("Sua conta foi suspensa. Entre em contato para mais informações.");
+      } else {
+        setError("E-mail ou senha incorretos.");
+      }
+      return; 
+    }
     router.push("/loja");
     router.refresh();
   }
@@ -43,6 +50,11 @@ export default function LoginPage() {
         {params.get("erro") === "google-desativado" && (
           <div className="mb-4 rounded-lg bg-[#F6E7E1] px-3 py-2 text-xs text-[#8a4a3a]">
             Login com Google está desativado para esta conta. Entre com e-mail e senha.
+          </div>
+        )}
+        {params.get("erro") === "banido" && (
+          <div className="mb-4 rounded-lg bg-[#F6E7E1] px-3 py-2 text-xs text-[#8a4a3a]">
+            Sua conta foi suspensa. Entre em contato para mais informações.
           </div>
         )}
         {error && <div className="mb-4 rounded-lg bg-[#F6E7E1] px-3 py-2 text-xs text-[#8a4a3a]">{error}</div>}

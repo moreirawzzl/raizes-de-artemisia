@@ -49,7 +49,7 @@ export async function POST(req: Request) {
     prisma.notification.create({
       data: {
         userId,
-        type: "ADMIN_MESSAGE",
+        type: "CHAT_REPLY",
         title: "A loja te enviou uma mensagem",
         body: body.trim().slice(0, 100),
         link: "/chat"

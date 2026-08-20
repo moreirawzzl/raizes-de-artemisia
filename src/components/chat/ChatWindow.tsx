@@ -7,6 +7,7 @@ interface Message {
   senderRole: string;
   body: string;
   createdAt: string;
+  editedAt?: string;
   read: boolean;
 }
 
@@ -20,6 +21,8 @@ export function ChatWindow({ initialMessages, isAdmin = false, userId }: ChatWin
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [body, setBody] = useState("");
   const [sending, setSending] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editBody, setEditBody] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
   const { playSound } = useSettings();
 
@@ -73,6 +76,38 @@ export function ChatWindow({ initialMessages, isAdmin = false, userId }: ChatWin
     }
   }
 
+  async function handleEdit(e: React.FormEvent, msgId: string) {
+    e.preventDefault();
+    if (!editBody.trim() || sending) return;
+    setSending(true);
+    try {
+      const url = isAdmin ? `/api/admin/messages/${msgId}` : `/api/messages/${msgId}`;
+      const res = await fetch(url, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ body: editBody })
+      });
+      if (res.ok) {
+        const updatedMsg = await res.json();
+        setMessages((prev) => prev.map(m => m.id === msgId ? updatedMsg : m));
+        setEditingId(null);
+        setEditBody("");
+        playSound("success");
+      } else {
+        const errorData = await res.json();
+        alert(errorData.error || "Erro ao editar");
+        playSound("error");
+      }
+    } finally {
+      setSending(false);
+    }
+  }
+
+  function startEditing(msg: Message) {
+    setEditingId(msg.id);
+    setEditBody(msg.body);
+  }
+
   const myRole = isAdmin ? "ADMIN" : "USER";
 
   return (
@@ -86,28 +121,60 @@ export function ChatWindow({ initialMessages, isAdmin = false, userId }: ChatWin
         )}
         {messages.map((msg) => {
           const isMine = msg.senderRole === myRole;
+          const isEditing = editingId === msg.id;
+          const fifteenMinsAgo = Date.now() - 15 * 60 * 1000;
+          const canEdit = isMine && new Date(msg.createdAt).getTime() > fifteenMinsAgo;
+
           return (
             <div
               key={msg.id}
-              className={`flex ${isMine ? "justify-end" : "justify-start"}`}
+              className={`flex group ${isMine ? "justify-end" : "justify-start"}`}
             >
-              <div
-                className={`max-w-[75%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
-                  isMine
-                    ? "bg-verde-principal text-white"
-                    : "bg-[#f4f0e8] text-[#3a3a2e]"
-                }`}
-              >
-                {msg.body}
-                <div
-                  className={`mt-1 text-[10px] opacity-60`}
+              {isEditing ? (
+                <form
+                  onSubmit={(e) => handleEdit(e, msg.id)}
+                  className="flex w-full max-w-[75%] items-center gap-2 rounded-2xl bg-fundo p-2"
                 >
-                  {new Date(msg.createdAt).toLocaleTimeString("pt-BR", {
-                    hour: "2-digit",
-                    minute: "2-digit"
-                  })}
+                  <input
+                    type="text"
+                    value={editBody}
+                    onChange={(e) => setEditBody(e.target.value)}
+                    className="flex-1 bg-transparent text-sm text-verde-principal outline-none"
+                    autoFocus
+                  />
+                  <button type="submit" className="text-xs text-verde-principal hover:underline">Salvar</button>
+                  <button type="button" onClick={() => setEditingId(null)} className="text-xs text-bege-escuro hover:underline">Cancelar</button>
+                </form>
+              ) : (
+                <div
+                  className={`relative max-w-[75%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
+                    isMine
+                      ? "bg-verde-principal text-white"
+                      : "bg-[#f4f0e8] text-[#3a3a2e]"
+                  }`}
+                >
+                  {msg.body}
+                  <div
+                    className={`mt-1 flex items-center justify-between text-[10px] opacity-60`}
+                  >
+                    <span>
+                      {new Date(msg.createdAt).toLocaleTimeString("pt-BR", {
+                        hour: "2-digit",
+                        minute: "2-digit"
+                      })}
+                      {msg.editedAt && " (editado)"}
+                    </span>
+                  </div>
+                  {canEdit && (
+                    <button
+                      onClick={() => startEditing(msg)}
+                      className={`absolute opacity-0 transition-opacity group-hover:opacity-100 top-1 text-[10px] underline ${isMine ? "-left-10 text-verde-secundario" : "-right-10 text-verde-secundario"}`}
+                    >
+                      editar
+                    </button>
+                  )}
                 </div>
-              </div>
+              )}
             </div>
           );
         })}

@@ -4,6 +4,7 @@ import { StatCard } from "@/components/admin/StatCard";
 import { formatMoney } from "@/lib/format";
 import { ResetRevenueButton } from "@/components/admin/ResetRevenueButton";
 import { ResetAllButton } from "@/components/admin/ResetAllButton";
+import { FactoryResetButton } from "@/components/admin/FactoryResetButton";
 import { RevenueRangeSearch } from "@/components/admin/RevenueRangeSearch";
 
 const PAID_STATUSES = ["PAID", "DELIVERED"];
@@ -53,6 +54,7 @@ export default async function AdminDashboard() {
       <div className="mb-3 flex flex-wrap items-center gap-3">
         <ResetRevenueButton />
         <ResetAllButton />
+        <FactoryResetButton />
         {revenueResetAt && (
           <span className="text-[11px] text-bege-escuro">
             Receita contando desde {new Date(revenueResetAt).toLocaleString("pt-BR")}

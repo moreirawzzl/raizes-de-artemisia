@@ -36,6 +36,7 @@ export function ProductForm({ initial }: { initial?: InitialData }) {
   );
   const [stock, setStock] = useState(initial?.stock ?? 0);
   const [featured, setFeatured] = useState(initial?.featured ?? false);
+  const [notifyCustomers, setNotifyCustomers] = useState(false);
   const [images, setImages] = useState<string[]>(initial?.images ?? []);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -65,6 +66,7 @@ export function ProductForm({ initial }: { initial?: InitialData }) {
       price: parseMaskedMoney(priceDisplay),
       stock: Number(stock),
       featured,
+      notifyCustomers,
       images
     };
 
@@ -154,9 +156,18 @@ export function ProductForm({ initial }: { initial?: InitialData }) {
           <Input type="number" min={0} value={stock} onChange={(e) => setStock(Number(e.target.value))} />
         </div>
 
-        <div className="flex items-center gap-2 sm:col-span-2">
-          <input type="checkbox" id="featured" checked={featured} onChange={(e) => setFeatured(e.target.checked)} />
-          <label htmlFor="featured" className="text-xs text-verde-secundario">Destacar na página inicial</label>
+        <div className="flex flex-col gap-3 sm:col-span-2">
+          <div className="flex items-center gap-2">
+            <input type="checkbox" id="featured" checked={featured} onChange={(e) => setFeatured(e.target.checked)} />
+            <label htmlFor="featured" className="text-xs text-verde-secundario">Destacar na página inicial</label>
+          </div>
+          
+          {!isEditing && (
+            <div className="flex items-center gap-2">
+              <input type="checkbox" id="notifyCustomers" checked={notifyCustomers} onChange={(e) => setNotifyCustomers(e.target.checked)} />
+              <label htmlFor="notifyCustomers" className="text-xs text-verde-secundario">Notificar usuários sobre o novo produto</label>
+            </div>
+          )}
         </div>
       </div>
 

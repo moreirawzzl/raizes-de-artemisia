@@ -8,6 +8,7 @@ interface UserRow {
   username: string;
   email: string;
   role: string;
+  banned: boolean;
   createdAt: string;
 }
 
@@ -44,6 +45,33 @@ async function sendMessage(u: UserRow) {
   if (res.ok) { playSound("success"); alert("Mensagem enviada!"); }
   else playSound("error");
 }
+
+  async function toggleBan(u: UserRow) {
+    const newBanned = !u.banned;
+    let reason = "";
+    if (newBanned) {
+      const input = prompt(`Tem certeza que deseja banir ${u.username}? Digite o motivo (opcional):`);
+      if (input === null) return;
+      reason = input.trim();
+    } else {
+      if (!confirm(`Deseja desbanir ${u.username}?`)) return;
+    }
+    
+    const res = await fetch(`/api/admin/users/${u.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ banned: newBanned, reason: newBanned ? reason : undefined })
+    });
+    
+    const data = await res.json();
+    if (res.ok) {
+      setUsers((prev) => prev.map((x) => (x.id === u.id ? { ...x, banned: newBanned } : x)));
+      playSound("success");
+    } else {
+      alert(data.error || "Erro ao atualizar");
+      playSound("error");
+    }
+  }
   return (
     <div className="rounded-xl2 border border-bege-claro bg-white p-6">
       <table className="w-full text-sm">
@@ -66,6 +94,11 @@ async function sendMessage(u: UserRow) {
                 <span className={`rounded-full px-2.5 py-0.5 text-[10px] uppercase ${u.role === "ADMIN" ? "bg-verde-principal text-white" : "bg-fundo text-verde-secundario"}`}>
                   {u.role === "ADMIN" ? "admin" : "cliente"}
                 </span>
+                {u.banned && (
+                  <span className="ml-2 rounded-full bg-red-100 px-2.5 py-0.5 text-[10px] uppercase text-red-600">
+                    banido
+                  </span>
+                )}
               </td>
               <td className="p-2 text-right">
                 <button
@@ -80,6 +113,13 @@ async function sendMessage(u: UserRow) {
                   className="ml-3 text-xs text-verde-secundario underline"
                 >
                   mandar mensagem
+                </button>
+                <button
+                  onClick={() => toggleBan(u)}
+                  disabled={(session?.user as any)?.id === u.id}
+                  className="ml-3 text-xs text-[#A00] underline disabled:opacity-30"
+                >
+                  {u.banned ? "desbanir" : "banir"}
                 </button>
               </td>
             </tr>

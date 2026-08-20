@@ -23,6 +23,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         const user = await prisma.user.findUnique({ where: { email } });
         if (!user || !user.hasPassword || !user.passwordHash) return null;
+        if (user.banned) throw new Error("BANNED");
 
         const valid = await bcrypt.compare(password, user.passwordHash);
         if (!valid) return null;
@@ -65,6 +66,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               cart: { create: {} }
             }
           });
+        } else if (existing.banned) {
+          return "/login?erro=banido";
         } else if (!existing.allowGoogleLogin) {
           return "/login?erro=google-desativado";
         } else if (!existing.avatarUrl && user.image) {
@@ -81,6 +84,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (user) {
         const dbUser = await prisma.user.findUnique({ where: { email: user.email! } });
         if (dbUser) {
+          await prisma.user.update({
+            where: { id: dbUser.id },
+            data: { lastLoginAt: new Date() }
+          });
           token.id = dbUser.id;
           token.role = dbUser.role;
           token.hasPassword = dbUser.hasPassword;

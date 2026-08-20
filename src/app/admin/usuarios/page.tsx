@@ -13,6 +13,7 @@ export default async function AdminUsuariosPage() {
           username: u.username,
           email: u.email,
           role: u.role,
+          banned: u.banned,
           createdAt: u.createdAt.toISOString()
         }))}
       />

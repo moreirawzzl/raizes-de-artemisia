@@ -21,8 +21,13 @@ model User {
   soundEnabled       Boolean @default(true)
   animationsEnabled  Boolean @default(true)
   allowGoogleLogin   Boolean @default(true)
-  createdAt     DateTime  @default(now())
-  cart          Cart?
+  lastLoginAt        DateTime?
+  reengagementEmailSentAt DateTime?
+  banned             Boolean @default(false)
+  bannedAt           DateTime?
+  banReason          String?
+  createdAt          DateTime  @default(now())
+  cart               Cart?
   orders        Order[]
   favorites     Favorite[]
   resetCodes    PasswordResetCode[]
@@ -134,6 +139,8 @@ model CartItem {
   productId String
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   quantity  Int     @default(1)
+  createdAt DateTime @default(now())
+  reminderSentAt DateTime?
 
   @@unique([cartId, productId])
 }
@@ -193,6 +200,7 @@ model Message {
   body               String
   read               Boolean  @default(false)
   createdAt          DateTime @default(now())
+  editedAt           DateTime?
 }
 
 model Review {
