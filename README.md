@@ -23,9 +23,6 @@ npm run dev
 Pronto. Abra **http://localhost:3000**, clique em "Acesso administrativo" (ou vá direto em
 `/admin`) e entre com:
 
-- **E-mail:** `gui9451aa@gmail.com`
-- **Senha:** `12345678`
-
 Essa conta é criada automaticamente pelo comando `npm run db:seed` (ele lê o `.env` e
 grava o usuário admin no arquivo `dev.db`, com a senha já protegida por hash bcrypt —
 nunca fica salva em texto puro). Rodar `db:seed` de novo não duplica, ele percebe que
