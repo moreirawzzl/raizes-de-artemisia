@@ -13,6 +13,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <Link href="/admin/pedidos" className="rounded-full border border-bege-claro bg-white px-5 py-2 text-xs text-verde-principal hover:bg-verde-principal hover:text-white">Pedidos</Link>
         <Link href="/admin/calculadora" className="rounded-full border border-bege-claro bg-white px-5 py-2 text-xs text-verde-principal hover:bg-verde-principal hover:text-white">Calculadora</Link>
       <Link href="/admin/usuarios" className="rounded-full border border-bege-claro bg-white px-5 py-2 text-xs text-verde-principal hover:bg-verde-principal hover:text-white">Usuários</Link>
+      <Link href="/admin/conversas" className="rounded-full border border-bege-claro bg-white px-5 py-2 text-xs text-verde-principal hover:bg-verde-principal hover:text-white">Conversas</Link>
       </div>
       {children}
     </div>

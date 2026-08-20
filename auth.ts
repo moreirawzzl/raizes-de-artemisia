@@ -27,24 +27,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const valid = await bcrypt.compare(password, user.passwordHash);
         if (!valid) return null;
 
-return {
-  id: user.id,
-  username: user.username,
-  email: user.email,
-  name: user.username,
-  role: user.role,
-  image: user.avatarUrl
-}
-          
-          
-          
-          
-        },
-            }),
-    // Login com Google: exige GOOGLE_CLIENT_ID e GOOGLE_CLIENT_SECRET no .env
-    // (crie em https://console.cloud.google.com/apis/credentials). Sem essas
-    // chaves configuradas, o botão "Entrar com Google" simplesmente não funciona
-    // — o resto do site continua normal com login por e-mail/senha.
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.username,
+          role: user.role,
+          image: user.avatarUrl
+        };
+      }
+    }),
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET
@@ -57,7 +48,6 @@ return {
         const email = user.email!;
         const existing = await prisma.user.findUnique({ where: { email } });
         if (!existing) {
-          // Primeiro login com Google: cria a conta usando nome/foto do Google.
           const baseUsername = (user.name || email.split("@")[0]).replace(/\s+/g, "").toLowerCase();
           let username = baseUsername;
           let i = 1;
@@ -102,7 +92,6 @@ return {
           token.provider = dbUser.provider;
         }
       }
-      // Permite refletir mudanças feitas em /configuracoes sem precisar deslogar
       if (trigger === "update" && token.id) {
         const dbUser = await prisma.user.findUnique({ where: { id: token.id as string } });
         if (dbUser) {
@@ -137,4 +126,3 @@ return {
   },
   secret: process.env.AUTH_SECRET
 });
-

@@ -2,12 +2,27 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth-helpers";
 import { formatMoney } from "@/lib/format";
+import { ReviewSection } from "@/components/store/ReviewSection";
 
 export default async function PerfilPage() {
   const user = await requireUser();
   const dbUser = await prisma.user.findUnique({ where: { id: (user as any).id } });
-  const orders = await prisma.order.findMany({ where: { userId: (user as any).id }, orderBy: { createdAt: "desc" } });
+  const orders = await prisma.order.findMany({
+    where: { userId: (user as any).id },
+    orderBy: { createdAt: "desc" },
+    include: {
+      items: { include: { product: true } },
+      reviews: true
+    }
+  });
   const totalSpent = orders.reduce((a, o) => a + o.total, 0);
+
+  // Orders eligible for review (DELIVERED with at least one unreviewed item)
+  const deliveredOrders = orders.filter(
+    (o) =>
+      o.status === "DELIVERED" &&
+      o.items.some((i) => !o.reviews.find((r) => r.productId === i.productId))
+  );
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-12">
@@ -38,6 +53,21 @@ export default async function PerfilPage() {
           <p className="mt-1 font-display text-3xl text-verde-principal">{formatMoney(totalSpent)}</p>
         </div>
       </div>
+
+      {/* Review section for delivered orders */}
+      {deliveredOrders.length > 0 && (
+        <div className="mb-8 rounded-xl2 border border-verde-secundario/30 bg-white p-6">
+          <h2 className="mb-1 font-display text-xl text-verde-principal">Avalie sua compra 🌿</h2>
+          <p className="mb-4 text-xs text-bege-escuro">
+            Você tem {deliveredOrders.reduce((a, o) => a + o.items.filter((i) => !o.reviews.find((r) => r.productId === i.productId)).length, 0)} produto(s) para avaliar.
+          </p>
+          <ReviewSection deliveredOrders={deliveredOrders.map((o) => ({
+            id: o.id,
+            items: o.items.map((i) => ({ productId: i.productId, productName: i.product.name })),
+            reviewedProductIds: o.reviews.map((r) => r.productId)
+          }))} />
+        </div>
+      )}
 
       <div className="mb-8 rounded-xl2 border border-bege-claro bg-white p-6">
         <h2 className="mb-4 font-display text-xl text-verde-principal">Últimos pedidos</h2>

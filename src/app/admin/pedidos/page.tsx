@@ -5,12 +5,14 @@ import { OrderActions } from "@/components/admin/OrderActions";
 const statusLabel: Record<string, string> = {
   AWAITING_PAYMENT: "Aguardando pagamento",
   PAID: "Pago",
+  DELIVERED: "Entregue",
   CANCELED: "Cancelado"
 };
 
 const statusColor: Record<string, string> = {
   AWAITING_PAYMENT: "bg-[#F3E6C8] text-[#8A6D1F]",
   PAID: "bg-[#DCEBD6] text-verde-principal",
+  DELIVERED: "bg-[#C8E6E0] text-[#2D6A5A]",
   CANCELED: "bg-red-50 text-red-500"
 };
 

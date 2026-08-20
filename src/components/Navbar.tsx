@@ -3,6 +3,7 @@ import Image from "next/image";
 import { getCurrentUser } from "@/lib/auth-helpers";
 import { CartIndicator } from "./store/CartIndicator";
 import { signOut } from "../../auth";
+import { NotificationBell } from "./NotificationBell";
 
 export async function Navbar() {
   const user = await getCurrentUser();
@@ -48,13 +49,6 @@ export async function Navbar() {
             Favoritos
           </Link>
 
-          <Link
-            href="/sobre-nos"
-            className="transition-colors hover:text-verde-secundario"
-          >
-            Sobre Nós
-          </Link>
-
           {user?.role === "ADMIN" && (
             <Link
               href="/admin"
@@ -69,6 +63,27 @@ export async function Navbar() {
         <div className="flex shrink-0 items-center gap-4 font-body">
           {user ? (
             <>
+              <NotificationBell />
+              <Link
+                href="/chat"
+                className="relative text-verde-principal transition-colors hover:text-verde-secundario"
+                title="Mensagens"
+                aria-label="Chat com a loja"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                </svg>
+              </Link>
               <CartIndicator />
 
               <Link

@@ -19,7 +19,6 @@ export function UsersManager({ initialUsers }: { initialUsers: UserRow[] }) {
   async function toggleRole(u: UserRow) {
     const newRole = u.role === "ADMIN" ? "USER" : "ADMIN";
     if (!confirm(`${newRole === "ADMIN" ? "Tornar" : "Remover"} ${u.username} ${newRole === "ADMIN" ? "administradora" : "de administradora"}?`)) return;
-
     const res = await fetch(`/api/admin/users/${u.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -34,7 +33,17 @@ export function UsersManager({ initialUsers }: { initialUsers: UserRow[] }) {
       playSound("error");
     }
   }
-
+async function sendMessage(u: UserRow) {
+  const message = prompt(`Mensagem para ${u.username}:`);
+  if (!message?.trim()) return;
+  const res = await fetch("/api/admin/messages", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ userId: u.id, message })
+  });
+  if (res.ok) { playSound("success"); alert("Mensagem enviada!"); }
+  else playSound("error");
+}
   return (
     <div className="rounded-xl2 border border-bege-claro bg-white p-6">
       <table className="w-full text-sm">
@@ -65,6 +74,12 @@ export function UsersManager({ initialUsers }: { initialUsers: UserRow[] }) {
                   className="text-xs text-verde-secundario underline disabled:opacity-30"
                 >
                   {u.role === "ADMIN" ? "remover admin" : "tornar admin"}
+                </button>
+                <button
+                  onClick={() => sendMessage(u)}
+                  className="ml-3 text-xs text-verde-secundario underline"
+                >
+                  mandar mensagem
                 </button>
               </td>
             </tr>

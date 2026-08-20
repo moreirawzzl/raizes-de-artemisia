@@ -3,30 +3,31 @@ import { prisma } from "@/lib/prisma";
 import { StatCard } from "@/components/admin/StatCard";
 import { formatMoney } from "@/lib/format";
 import { ResetRevenueButton } from "@/components/admin/ResetRevenueButton";
+import { ResetAllButton } from "@/components/admin/ResetAllButton";
 import { RevenueRangeSearch } from "@/components/admin/RevenueRangeSearch";
 
-const PAID_STATUSES = ["PAID", "CONFIRMED"];
+const PAID_STATUSES = ["PAID", "DELIVERED"];
 
 export default async function AdminDashboard() {
   const shopSettings = await prisma.shopSettings.findUnique({ where: { id: "main" } });
   const revenueResetAt = shopSettings?.revenueResetAt ?? null;
+  const materialCostResetAt = shopSettings?.materialCostResetAt ?? null;
 
   const [totalUsers, totalProducts, orders, products, materials, paidOrders] = await Promise.all([
     prisma.user.count({ where: { role: "USER" } }),
     prisma.product.count(),
     prisma.order.findMany({ include: { user: true }, orderBy: { createdAt: "desc" }, take: 8 }),
     prisma.product.findMany(),
-    prisma.materialCost.findMany(),
+    prisma.materialCost.findMany({
+      where: materialCostResetAt ? { createdAt: { gt: materialCostResetAt } } : {}
+    }),
     prisma.order.findMany({
       where: {
         status: { in: PAID_STATUSES },
-        ...(revenueResetAt ? { createdAt: { gt: revenueResetAt } } : {})
+        ...(revenueResetAt ? { confirmedAt: { gt: revenueResetAt } } : {})
       }
     })
   ]);
-<div className="mb-10">
-  <RevenueRangeSearch />
-</div>
   const totalViews = products.reduce((a, p) => a + p.viewCount, 0);
   const totalSales = products.reduce((a, p) => a + p.salesCount, 0);
   const revenue = paidOrders.reduce((a, o) => a + o.total, 0);
@@ -49,11 +50,17 @@ export default async function AdminDashboard() {
         <StatCard label="Receita bruta" value={formatMoney(revenue)} />
       </div>
 
-      <div className="mb-3 flex items-center gap-3">
+      <div className="mb-3 flex flex-wrap items-center gap-3">
         <ResetRevenueButton />
+        <ResetAllButton />
         {revenueResetAt && (
           <span className="text-[11px] text-bege-escuro">
-            Contando desde {new Date(revenueResetAt).toLocaleString("pt-BR")}
+            Receita contando desde {new Date(revenueResetAt).toLocaleString("pt-BR")}
+          </span>
+        )}
+        {materialCostResetAt && (
+          <span className="text-[11px] text-bege-escuro">
+            · Custos contando desde {new Date(materialCostResetAt).toLocaleString("pt-BR")}
           </span>
         )}
       </div>
@@ -64,6 +71,10 @@ export default async function AdminDashboard() {
         <Link href="/admin/calculadora" className="flex items-center justify-center rounded-xl2 border border-dashed border-bege-escuro bg-white p-5 text-xs text-verde-secundario hover:bg-fundo">
           + Lançar custo de material
         </Link>
+      </div>
+
+      <div className="mb-10">
+        <RevenueRangeSearch />
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
@@ -111,7 +122,7 @@ export default async function AdminDashboard() {
           <ul className="space-y-2 text-sm">
             {orders.map((o) => (
               <li key={o.id} className="flex justify-between border-b border-[#f0ece0] pb-1.5">
-                <span>{o.user.username} <span className="text-[10px] text-bege-escuro">({PAID_STATUSES.includes(o.status) ? "pago" : o.status === "CANCELED" ? "cancelado" : "aguardando"})</span></span>
+                <span>{o.user.username} <span className="text-[10px] text-bege-escuro">({PAID_STATUSES.includes(o.status) ? (o.status === "DELIVERED" ? "entregue" : "pago") : o.status === "CANCELED" ? "cancelado" : "aguardando"})</span></span>
                 <span className="text-verde-secundario">{formatMoney(o.total)}</span>
               </li>
             ))}

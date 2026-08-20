@@ -8,7 +8,13 @@ export default async function AdminUsuariosPage() {
     <div>
       <h1 className="mb-6 font-display text-3xl text-verde-principal">Usuários</h1>
       <UsersManager
-        initialUsers={users.map((u) => ({ id: u.id, username: u.username, email: u.email, role: u.role, createdAt: u.createdAt.toISOString() }))}
+        initialUsers={users.map((u) => ({
+          id: u.id,
+          username: u.username,
+          email: u.email,
+          role: u.role,
+          createdAt: u.createdAt.toISOString()
+        }))}
       />
     </div>
   );

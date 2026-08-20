@@ -7,9 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// SQLite não suporta enums nativos — usamos String simples com os valores
-// "USER" | "ADMIN" (o código da aplicação já compara por essas strings).
-
 model User {
   id            String    @id @default(cuid())
   username      String    @unique
@@ -17,10 +14,10 @@ model User {
   passwordHash  String?
   hasPassword   Boolean   @default(false)
   avatarUrl     String?
-  provider      String    @default("credentials") // "credentials" | "google"
+  provider      String    @default("credentials")
   role          String    @default("USER")
-  theme         String    @default("light")  // "light" | "dark"
-  fontSize      String    @default("medium")  // "small" | "medium" | "large"
+  theme         String    @default("light")
+  fontSize      String    @default("medium")
   soundEnabled       Boolean @default(true)
   animationsEnabled  Boolean @default(true)
   allowGoogleLogin   Boolean @default(true)
@@ -29,12 +26,16 @@ model User {
   orders        Order[]
   favorites     Favorite[]
   resetCodes    PasswordResetCode[]
+  notifications Notification[]
+  reviews       Review[]
+  conversations Message[] @relation("conversations")
+  sentMessages  Message[] @relation("sentMessages")
 }
 
 model Coupon {
   id         String    @id @default(cuid())
   code       String    @unique
-  percentage Int       // 0 a 100
+  percentage Int
   validUntil DateTime
   active     Boolean   @default(true)
   createdAt  DateTime  @default(now())
@@ -70,8 +71,8 @@ model Product {
   slug        String         @unique
   description String
   benefits    String?
-  usage       String?        // modo de uso
-  care        String?        // cuidados
+  usage       String?
+  care        String?
   weight      String?
   price       Float
   stock       Int            @default(0)
@@ -86,6 +87,7 @@ model Product {
   orderItems  OrderItem[]
   views       ProductView[]
   favorites   Favorite[]
+  reviews     Review[]
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
   ativo Boolean @default(true)
@@ -136,8 +138,6 @@ model CartItem {
   @@unique([cartId, productId])
 }
 
-// Idem: sem enum nativo, usamos String com "PENDING" | "AWAITING_PAYMENT" | "PAID" | "CANCELED"
-
 model Order {
   id           String      @id @default(cuid())
   orderNumber  Int         @unique @default(autoincrement())
@@ -152,6 +152,7 @@ model Order {
   confirmedAt  DateTime?
   whatsappText String?
   createdAt    DateTime    @default(now())
+  reviews      Review[]
 }
 
 model OrderItem {
@@ -165,6 +166,46 @@ model OrderItem {
 }
 
 model ShopSettings {
-  id             String    @id @default("main")
-  revenueResetAt DateTime?
+  id                  String    @id @default("main")
+  revenueResetAt      DateTime?
+  materialCostResetAt DateTime?
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String
+  title     String
+  body      String
+  read      Boolean  @default(false)
+  link      String?
+  createdAt DateTime @default(now())
+}
+
+model Message {
+  id                 String   @id @default(cuid())
+  conversationUserId String
+  conversationUser   User     @relation("conversations", fields: [conversationUserId], references: [id], onDelete: Cascade)
+  senderId           String
+  sender             User     @relation("sentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  senderRole         String
+  body               String
+  read               Boolean  @default(false)
+  createdAt          DateTime @default(now())
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+
+  @@unique([orderId, productId])
 }

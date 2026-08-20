@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useSettings } from "@/components/providers/SettingsProvider";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 import { Label } from "@/components/ui/Label";
 
 function SegButton({ active, children, onClick }: { active: boolean; children: React.ReactNode; onClick: () => void }) {
@@ -39,14 +40,16 @@ export default function ConfiguracoesPage() {
   const { theme, fontSize, soundEnabled, animationsEnabled, playSound, updateSettings } = useSettings();
   const fileRef = useRef<HTMLInputElement>(null);
 
+  const user = session?.user as any;
+  const hasPassword = user?.hasPassword;
+
+  const [username, setUsername] = useState(user?.username || "");
+  const [savingUsername, setSavingUsername] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [pwMsg, setPwMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
   const [savingPw, setSavingPw] = useState(false);
-
-  const user = session?.user as any;
-  const hasPassword = user?.hasPassword;
 
   async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -66,6 +69,19 @@ export default function ConfiguracoesPage() {
       await update();
       playSound("success");
     }
+  }
+
+  async function handleUsernameSave() {
+    if (!username.trim() || username.trim().length < 3) return;
+    setSavingUsername(true);
+    const res = await fetch("/api/settings", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username: username.trim() })
+    });
+    setSavingUsername(false);
+    if (res.ok) { await update(); playSound("success"); }
+    else playSound("error");
   }
 
   async function handlePasswordSubmit(e: React.FormEvent) {
@@ -98,7 +114,7 @@ export default function ConfiguracoesPage() {
     <main className="mx-auto max-w-2xl px-6 py-12">
       <h1 className="mb-8 font-display text-4xl text-verde-principal">Configurações</h1>
 
-      {/* Perfil / avatar */}
+      {/* Perfil / avatar / nome */}
       <section className="mb-8 rounded-xl2 border border-bege-claro bg-white p-6">
         <h2 className="mb-4 font-display text-xl text-verde-principal">Foto de perfil</h2>
         <div className="flex items-center gap-4">
@@ -111,6 +127,16 @@ export default function ConfiguracoesPage() {
             {uploadingAvatar ? "Enviando..." : "Trocar foto"}
           </Button>
           <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
+        </div>
+
+        <div className="mt-5">
+          <Label>Nome de usuário</Label>
+          <div className="flex gap-2">
+            <Input value={username} onChange={(e) => setUsername(e.target.value)} minLength={3} maxLength={24} />
+            <Button type="button" onClick={handleUsernameSave} disabled={savingUsername}>
+              {savingUsername ? "Salvando..." : "Salvar"}
+            </Button>
+          </div>
         </div>
       </section>
 
@@ -166,12 +192,12 @@ export default function ConfiguracoesPage() {
           {hasPassword && (
             <div>
               <Label>Senha atual</Label>
-              <Input type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} required />
+              <PasswordInput value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} required />
             </div>
           )}
           <div>
             <Label>Nova senha</Label>
-            <Input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required minLength={8} />
+            <PasswordInput value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required minLength={8} />
           </div>
           <Button type="submit" disabled={savingPw}>{savingPw ? "Salvando..." : hasPassword ? "Salvar nova senha" : "Criar senha"}</Button>
         </form>

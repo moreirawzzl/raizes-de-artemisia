@@ -5,7 +5,7 @@ import { getCurrentUser } from "@/lib/auth-helpers";
 export async function POST(req: Request) {
   try {
     const user = await getCurrentUser();
-    if (!user || (user as any).role !== "ADMIN") {
+    if (!user) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
     }
 

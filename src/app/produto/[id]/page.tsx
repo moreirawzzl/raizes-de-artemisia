@@ -5,6 +5,8 @@ import { ProductGrid } from "@/components/store/ProductGrid";
 import { AddToCartPanel } from "@/components/store/AddToCartPanel";
 import { ViewTracker } from "@/components/store/ViewTracker";
 import Image from "next/image";
+import { FavoriteButton } from "@/components/store/FavoriteButton";
+import { ProductReviews } from "@/components/store/ProductReviews";
 
 export default async function ProdutoPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -14,11 +16,22 @@ export default async function ProdutoPage({ params }: { params: Promise<{ id: st
   });
   if (!product || product.hidden) notFound();
 
-  const relacionados = await prisma.product.findMany({
-    where: { hidden: false, id: { not: product.id }, categoryId: product.categoryId ?? undefined },
-    include: { images: true },
-    take: 4
-  });
+  const [relacionados, reviews] = await Promise.all([
+    prisma.product.findMany({
+      where: { hidden: false, id: { not: product.id }, categoryId: product.categoryId ?? undefined },
+      include: { images: true },
+      take: 4
+    }),
+    prisma.review.findMany({
+      where: { productId: product.id },
+      include: { user: { select: { username: true, avatarUrl: true } } },
+      orderBy: { createdAt: "desc" }
+    })
+  ]);
+
+  const avg = reviews.length > 0
+    ? reviews.reduce((a, r) => a + r.rating, 0) / reviews.length
+    : null;
 
   return (
     <main className="mx-auto max-w-5xl px-6 py-10">
@@ -41,8 +54,14 @@ export default async function ProdutoPage({ params }: { params: Promise<{ id: st
 
         <div>
           <h1 className="font-display text-4xl text-verde-principal">{product.name}</h1>
+          {avg !== null && (
+            <div className="mt-1 flex items-center gap-1.5">
+              <span className="text-amber-400">{"★".repeat(Math.round(avg))}<span className="text-gray-300">{"★".repeat(5 - Math.round(avg))}</span></span>
+              <span className="text-xs text-bege-escuro">{avg.toFixed(1)} ({reviews.length})</span>
+            </div>
+          )}
           <p className="mt-2 font-display text-2xl font-semibold text-verde-principal">{formatMoney(product.price.toString())}</p>
-
+          <FavoriteButton productId={product.id} />
           <p className="mt-5 text-[11px] uppercase tracking-[2px] text-verde-secundario">Descrição</p>
           <p className="mt-1.5 whitespace-pre-line text-sm leading-relaxed text-[#5c5c50]">{product.description}</p>
 
@@ -65,6 +84,12 @@ export default async function ProdutoPage({ params }: { params: Promise<{ id: st
           <p className="mt-4 text-[10.5px] text-bege-escuro">👁 {product.viewCount} visualizações · {product.salesCount} vendas</p>
         </div>
       </div>
+
+      <ProductReviews
+        reviews={reviews.map((r) => ({ ...r, createdAt: r.createdAt.toISOString() }))}
+        avg={avg}
+        count={reviews.length}
+      />
 
       {relacionados.length > 0 && (
         <section className="mt-16">

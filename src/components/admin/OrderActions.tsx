@@ -25,18 +25,40 @@ export function OrderActions({ orderId, status }: { orderId: string; status: str
     }
   }
 
-  if (status === "PAID") {
+  if (status === "DELIVERED") {
     return (
       <button
         disabled={loading}
-        onClick={() => updateStatus("AWAITING_PAYMENT")}
+        onClick={() => updateStatus("PAID")}
         className="rounded-lg border border-bege-escuro px-3 py-1.5 text-xs text-bege-escuro hover:bg-fundo disabled:opacity-50"
       >
-        Desfazer confirmação
+        Desfazer entrega
       </button>
     );
   }
 
+  if (status === "PAID") {
+    return (
+      <div className="flex gap-2">
+        <button
+          disabled={loading}
+          onClick={() => updateStatus("DELIVERED")}
+          className="rounded-lg bg-verde-principal px-3 py-1.5 text-xs text-white hover:bg-[#455a40] disabled:opacity-50"
+        >
+          Marcar como entregue
+        </button>
+        <button
+          disabled={loading}
+          onClick={() => updateStatus("CANCELED")}
+          className="rounded-lg border border-red-300 px-3 py-1.5 text-xs text-red-500 hover:bg-red-50 disabled:opacity-50"
+        >
+          Cancelar
+        </button>
+      </div>
+    );
+  }
+
+  // AWAITING_PAYMENT
   return (
     <div className="flex gap-2">
       <button

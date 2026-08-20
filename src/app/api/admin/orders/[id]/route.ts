@@ -2,25 +2,29 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth-helpers";
 
+const VALID_STATUSES = ["PAID", "AWAITING_PAYMENT", "CANCELED", "DELIVERED"];
+const PAID_LIKE = ["PAID", "DELIVERED"];
+
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     await requireAdmin();
     const { id } = await params;
     const { status } = await req.json();
 
-    if (!["PAID", "AWAITING_PAYMENT", "CANCELED"].includes(status)) {
+    if (!VALID_STATUSES.includes(status)) {
       return NextResponse.json({ error: "Status inválido" }, { status: 400 });
     }
 
     const order = await prisma.order.findUnique({ where: { id }, include: { items: true } });
     if (!order) return NextResponse.json({ error: "Pedido não encontrado" }, { status: 404 });
 
-    // Só incrementa salesCount na transição PARA "PAID" vindo de outro
-    // status — evita contar duas vezes se clicar confirmar de novo.
-    const shouldIncrement = status === "PAID" && order.status !== "PAID";
-    // Se estava PAID e for movido pra outro status (ex: cancelado por engano
-    // depois de confirmado), desconta de volta.
-    const shouldDecrement = order.status === "PAID" && status !== "PAID";
+    // Increment salesCount when transitioning TO a paid-like status FROM a non-paid-like status
+    const shouldIncrement = PAID_LIKE.includes(status) && !PAID_LIKE.includes(order.status);
+    // Decrement when moving FROM paid-like TO a non-paid-like status
+    const shouldDecrement = PAID_LIKE.includes(order.status) && !PAID_LIKE.includes(status);
+
+    // Create delivery notification
+    const shouldNotifyDelivery = status === "DELIVERED" && order.status !== "DELIVERED";
 
     await prisma.$transaction([
       prisma.order.update({ where: { id }, data: { status } }),
@@ -33,6 +37,19 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
         ? order.items.map((i) =>
             prisma.product.update({ where: { id: i.productId }, data: { salesCount: { decrement: i.quantity } } })
           )
+        : []),
+      ...(shouldNotifyDelivery
+        ? [
+            prisma.notification.create({
+              data: {
+                userId: order.userId,
+                type: "ORDER_DELIVERED",
+                title: "Seu pedido foi entregue! 🌿",
+                body: "Avalie sua experiência de compra.",
+                link: "/perfil"
+              }
+            })
+          ]
         : [])
     ]);
 

@@ -4,6 +4,7 @@ import "./globals.css";
 import { Navbar } from "@/components/Navbar";
 import { Loader } from "@/components/Loader";
 import { Providers } from "@/components/providers/Providers";
+import { Footer } from "@/components/Footer";
 
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
@@ -30,11 +31,12 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR" className={`${cormorant.variable} ${montserrat.variable}`} suppressHydrationWarning>
-      <body className="font-body">
+      <body className="flex min-h-screen flex-col font-body">
         <Providers>
           <Loader />
           <Navbar />
           {children}
+          <Footer />
         </Providers>
       </body>
     </html>
