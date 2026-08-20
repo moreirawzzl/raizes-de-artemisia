@@ -1,0 +1,27 @@
+[
+  {
+    "content": "Diagnosticar estrutura do projeto e identificar erros",
+    "active_form": "Diagnosticando estrutura do projeto",
+    "status": "completed"
+  },
+  {
+    "content": "Executar validações (tsc, lint, build) para mapear erros reais",
+    "active_form": "Executando validações do projeto",
+    "status": "completed"
+  },
+  {
+    "content": "Corrigir erro TS no auth.ts (campo username)",
+    "active_form": "Corrigindo erro no auth.ts",
+    "status": "completed"
+  },
+  {
+    "content": "Validar build e confirmar causas ambientais (env masking)",
+    "active_form": "Validando build e comportamento Prisma",
+    "status": "completed"
+  },
+  {
+    "content": "Apresentar resumo final",
+    "active_form": "Apresentando resumo final",
+    "status": "completed"
+  }
+]
