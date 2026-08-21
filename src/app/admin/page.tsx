@@ -51,10 +51,14 @@ export default async function AdminDashboard() {
         <StatCard label="Receita bruta" value={formatMoney(revenue)} />
       </div>
 
-      <div className="mb-3 flex flex-wrap items-center gap-3">
+      {/* Reset SEGURO (não destrutivo — só passa a contar a partir de agora) */}
+      <div className="mb-3 flex flex-wrap items-center gap-3 rounded-xl2 border border-bege-claro bg-white p-4">
+        <div className="mr-2 flex flex-col">
+          <span className="text-xs font-bold text-verde-principal">Resets seguros</span>
+          <span className="text-[10.5px] text-bege-escuro">não apagam histórico, só a data de corte</span>
+        </div>
         <ResetRevenueButton />
         <ResetAllButton />
-        <FactoryResetButton />
         {revenueResetAt && (
           <span className="text-[11px] text-bege-escuro">
             Receita contando desde {new Date(revenueResetAt).toLocaleString("pt-BR")}
@@ -65,6 +69,11 @@ export default async function AdminDashboard() {
             · Custos contando desde {new Date(materialCostResetAt).toLocaleString("pt-BR")}
           </span>
         )}
+      </div>
+
+      {/* Reset DESTRUTIVO (factory reset) — separado e em destaque */}
+      <div className="mb-10 mt-4">
+        <FactoryResetButton />
       </div>
 
       <div className="mb-10 grid grid-cols-2 gap-4 sm:grid-cols-3">
