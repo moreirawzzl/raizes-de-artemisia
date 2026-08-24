@@ -141,8 +141,9 @@ export function ChatWindow({ initialMessages, isAdmin = false, userId }: ChatWin
                     onChange={(e) => setEditBody(e.target.value)}
                     className="flex-1 bg-transparent text-sm text-verde-principal outline-none"
                     autoFocus
+                    maxLength={1000}
                   />
-                  <button type="submit" className="text-xs text-verde-principal hover:underline">Salvar</button>
+                  <button type="submit" className="text-xs font-medium text-verde-principal hover:underline">Salvar</button>
                   <button type="button" onClick={() => setEditingId(null)} className="text-xs text-bege-escuro hover:underline">Cancelar</button>
                 </form>
               ) : (
@@ -168,9 +169,26 @@ export function ChatWindow({ initialMessages, isAdmin = false, userId }: ChatWin
                   {canEdit && (
                     <button
                       onClick={() => startEditing(msg)}
-                      className={`absolute opacity-0 transition-opacity group-hover:opacity-100 top-1 text-[10px] underline ${isMine ? "-left-10 text-verde-secundario" : "-right-10 text-verde-secundario"}`}
+                      title="Editar mensagem"
+                      aria-label="Editar mensagem"
+                      className={`absolute top-1 opacity-0 transition-opacity group-hover:opacity-100 hover:opacity-100 ${
+                        isMine ? "-left-9 text-verde-secundario" : "-right-9 text-verde-secundario"
+                      }`}
                     >
-                      editar
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                        <path d="m15 5 4 4" />
+                      </svg>
                     </button>
                   )}
                 </div>

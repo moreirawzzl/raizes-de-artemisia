@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useState, useEffect } from "react";
 import { ChatWindow } from "@/components/chat/ChatWindow";
 
@@ -21,6 +21,7 @@ interface Message {
   senderRole: string;
   body: string;
   createdAt: string;
+  editedAt?: string;
   read: boolean;
 }
 
@@ -135,3 +136,4 @@ export function ConversationsManager({ initialConversations }: Props) {
     </div>
   );
 }
+

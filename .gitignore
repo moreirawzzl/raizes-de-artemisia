@@ -8,4 +8,8 @@ public/uploads/*
 .env
 .env.local
 .neon
-.neon
+
+# Ignorar credenciais e arquivos de debug do agente
+.ethereal_creds.json
+*.bak
+*.tmp
