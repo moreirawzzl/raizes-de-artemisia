@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth-helpers";
+import { moderateMessage } from "@/lib/moderation";
 
 // GET — client fetches their own conversation messages
 export async function GET() {
@@ -9,13 +10,17 @@ export async function GET() {
 
   const messages = await prisma.message.findMany({
     where: { conversationUserId: userId },
-    orderBy: { createdAt: "asc" }
+    orderBy: { createdAt: "asc" },
   });
 
   // Mark admin messages as read
   await prisma.message.updateMany({
-    where: { conversationUserId: userId, senderRole: "ADMIN", read: false },
-    data: { read: true }
+    where: {
+      conversationUserId: userId,
+      senderRole: "ADMIN",
+      read: false,
+    },
+    data: { read: true },
   });
 
   return NextResponse.json(messages);
@@ -28,7 +33,25 @@ export async function POST(req: Request) {
   const { body } = await req.json();
 
   if (!body?.trim()) {
-    return NextResponse.json({ error: "Mensagem vazia" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Mensagem vazia" },
+      { status: 400 }
+    );
+  }
+
+  const cleanBody = body.trim();
+
+  // Moderação da mensagem
+  const moderation = await moderateMessage(cleanBody);
+
+  if (moderation.flagged) {
+    return NextResponse.json(
+      {
+        error:
+          "Sua mensagem não pode ser enviada porque contém conteúdo inadequado.",
+      },
+      { status: 400 }
+    );
   }
 
   const message = await prisma.message.create({
@@ -36,8 +59,8 @@ export async function POST(req: Request) {
       conversationUserId: userId,
       senderId: userId,
       senderRole: "USER",
-      body: body.trim()
-    }
+      body: cleanBody,
+    },
   });
 
   return NextResponse.json(message, { status: 201 });
