@@ -1,11 +1,10 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireUser } from "@/lib/auth-helpers";
-import { moderateMessage } from "@/lib/moderation";
+import { moderateMessage, sanitizeMessage } from "@/lib/moderation";
 
 // GET — client fetches their own conversation messages
 export async function GET() {
-  const user = await requireUser();
+  const user = await (await import("@/lib/auth-helpers")).requireUser();
   const userId = (user as any).id as string;
 
   const messages = await prisma.message.findMany({
@@ -28,7 +27,7 @@ export async function GET() {
 
 // POST — client sends a message
 export async function POST(req: Request) {
-  const user = await requireUser();
+  const user = await (await import("@/lib/auth-helpers")).requireUser();
   const userId = (user as any).id as string;
   const { body } = await req.json();
 
@@ -44,7 +43,8 @@ export async function POST(req: Request) {
   // Moderação da mensagem
   const moderation = await moderateMessage(cleanBody);
 
-  if (moderation.flagged) {
+  // Bloquear se conteúdo grave detectado
+  if (moderation.shouldBlock) {
     return NextResponse.json(
       {
         error:
@@ -54,12 +54,15 @@ export async function POST(req: Request) {
     );
   }
 
+  // Sanitizar palavrões (substituir por ***)
+  const finalBody = moderation.sanitized;
+
   const message = await prisma.message.create({
     data: {
       conversationUserId: userId,
       senderId: userId,
       senderRole: "USER",
-      body: cleanBody,
+      body: finalBody,
     },
   });
 
