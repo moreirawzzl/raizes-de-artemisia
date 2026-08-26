@@ -35,6 +35,9 @@ model User {
   reviews       Review[]
   conversations Message[] @relation("conversations")
   sentMessages  Message[] @relation("sentMessages")
+  adminLogs     AdminLog[]
+  changelogs    Changelog[]
+  messageReports MessageReport[]
 }
 
 model Coupon {
@@ -199,8 +202,42 @@ model Message {
   senderRole         String
   body               String
   read               Boolean  @default(false)
+  productId          String?
   createdAt          DateTime @default(now())
   editedAt           DateTime?
+  reports            MessageReport[]
+}
+
+model MessageReport {
+  id        String   @id @default(cuid())
+  messageId String
+  message   Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  reporterId String
+  reporter  User     @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+  reason    String
+  createdAt DateTime @default(now())
+}
+
+model AdminLog {
+  id            String   @id @default(cuid())
+  adminId       String
+  admin         User     @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  action        String
+  targetUserId  String?
+  orderId       String?
+  details       String?
+  createdAt     DateTime @default(now())
+}
+
+model Changelog {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  version     String
+  adminId     String
+  admin       User     @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  highlighted Boolean  @default(false)
+  createdAt   DateTime @default(now())
 }
 
 model Review {
