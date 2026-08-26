@@ -17,9 +17,10 @@ export default async function ChatPage() {
     data: { read: true }
   });
 
-  const serialized = messages.map((m) => ({
+   const serialized = messages.map((m) => ({
     ...m,
-    createdAt: m.createdAt.toISOString()
+    createdAt: m.createdAt.toISOString(),
+    editedAt: m.editedAt ? m.editedAt.toISOString() : undefined
   }));
 
   return (
