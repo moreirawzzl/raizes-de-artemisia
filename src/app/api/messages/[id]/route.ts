@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth-helpers";
+import { moderateMessage } from "@/lib/moderation";
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -32,9 +33,18 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       return NextResponse.json({ error: "O tempo para editar esta mensagem expirou." }, { status: 403 });
     }
 
+    // Moderação ao editar também
+    const moderation = await moderateMessage(body.trim());
+    if (moderation.shouldBlock) {
+      return NextResponse.json(
+        { error: "Sua mensagem não pode ser enviada porque contém conteúdo inadequado." },
+        { status: 400 }
+      );
+    }
+
     const updated = await prisma.message.update({
       where: { id },
-      data: { body: body.trim(), editedAt: new Date() }
+      data: { body: moderation.sanitized, editedAt: new Date() }
     });
 
     return NextResponse.json(updated);
