@@ -117,8 +117,12 @@ export function CartClient({ initialItems }: { initialItems: CartItem[] }) {
         opened = !!popup && !popup.closed;
       }
 
-      setItems([]);
-      router.refresh();
+      // ✅ NÃO LIMPAR O CARRINHO AQUI
+      // O carrinho só será limpo quando o admin confirmar o pagamento em /admin/pedidos
+      // Apenas redirecionamos sem remover os itens
+      if (opened) {
+        router.refresh();
+      }
 
       if (!opened) {
         setFallbackWhatsappUrl(data.whatsappUrl);
