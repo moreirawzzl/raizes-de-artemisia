@@ -155,12 +155,6 @@ export async function moderateMessage(text: string) {
 
     const result = response.results[0];
 
-    console.log("=== MODERAÇÃO OPENAI ===");
-    console.log("Mensagem:", text);
-    console.log("Flagged:", result.flagged);
-    console.log("Categorias:", result.categories);
-    console.log("========================");
-
     // 2. Verificar se tem conteúdo grave
     const hasSerious = isSeriousViolation(result.categories);
 
