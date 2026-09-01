@@ -16,7 +16,7 @@ jobs:
           node-version: '18'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install --no-audit --no-fund
 
       - name: Apply safe SQL to add Message.productId
         run: npx prisma db execute --file prisma/scripts/apply_message_productid.sql
