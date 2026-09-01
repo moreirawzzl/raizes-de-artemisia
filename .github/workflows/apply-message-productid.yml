@@ -16,10 +16,10 @@ jobs:
           node-version: '18'
 
       - name: Install dependencies
-        run: npm install --no-audit --no-fund
+        run: npm install --no-audit --no-fund && npm install pg --no-save
 
-      - name: Apply safe SQL to add Message.productId
-        run: npx prisma db execute --file prisma/scripts/apply_message_productid.sql
+      - name: Apply safe SQL to add Message.productId (via Node script)
+        run: node prisma/scripts/apply_message_productid.js
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
