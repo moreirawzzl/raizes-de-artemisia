@@ -53,8 +53,8 @@ export async function POST(req: Request) {
       await prisma.notification.createMany({
         data: users.map(u => ({
           userId: u.id,
-          type: "PROMO",
-          title: "Novo produto disponível!",
+          type: "NEW_PRODUCT",
+          title: "Lançamento: novo produto disponível!",
           body: `Venha conferir nosso novo produto: ${product.name}`,
           link: `/produto/${product.slug}`
         }))
