@@ -110,7 +110,7 @@ export function sanitizeMessage(text: string): string {
  * Retorna true se deve BLOQUEAR (conteúdo grave)
  * Retorna false se pode continuar (ok ou apenas palavrões)
  */
-function isSeriousViolation(categories: Record<string, boolean>): boolean {
+function isSeriousViolation(categories: any): boolean {
   // Conteúdo grave que deve ser BLOQUEADO
   const seriousCategories = [
     "violence",
