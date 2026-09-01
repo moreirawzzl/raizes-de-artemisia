@@ -141,3 +141,5 @@ npx prisma migrate dev --name novidades
 npm run db:seed
 ```
 # raizes-de-artemisia
+ 
+ 
