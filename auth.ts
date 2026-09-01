@@ -7,8 +7,9 @@ import { loginSchema } from "@/lib/password";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true,
+  secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
   session: { strategy: "jwt", maxAge: 60 * 60 * 24 },
-  pages: { signIn: "/login" },
+  pages: { signIn: "/login", error: "/login" },
   providers: [
     Credentials({
       name: "credentials",
@@ -39,8 +40,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
     }),
     Google({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET
+      clientId: process.env.GOOGLE_CLIENT_ID || process.env.AUTH_GOOGLE_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || process.env.AUTH_GOOGLE_SECRET
     })
   ],
   callbacks: {
@@ -131,6 +132,5 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
       return session;
     }
-  },
-  secret: process.env.AUTH_SECRET
+  }
 });

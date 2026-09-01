@@ -58,6 +58,13 @@ export default function LoginPage() {
             Sua conta foi suspensa. Entre em contato para mais informações.
           </div>
         )}
+        {params.get("error") && (
+          <div className="mb-4 rounded-lg bg-[#F6E7E1] px-3 py-2 text-xs text-[#8a4a3a]">
+            {params.get("error") === "Configuration"
+              ? "Erro de configuração no login com Google. Verifique se as variáveis de ambiente e URIs estão configuradas na Vercel e no Google Cloud."
+              : "Erro ao autenticar com Google. Tente novamente."}
+          </div>
+        )}
         {error && <div className="mb-4 rounded-lg bg-[#F6E7E1] px-3 py-2 text-xs text-[#8a4a3a]">{error}</div>}
 
         <form action={googleSignIn}>
