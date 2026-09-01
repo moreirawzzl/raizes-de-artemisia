@@ -1,8 +1,16 @@
 import OpenAI from "openai";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// Criar cliente OpenAI lazily (apenas quando necessário)
+let openai: OpenAI | null = null;
+
+function getOpenAIClient(): OpenAI {
+  if (!openai) {
+    openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+  }
+  return openai;
+}
 
 // Lista de palavrões em português (concisa e eficiente)
 const PORTUGUESE_SWEAR_WORDS = [
@@ -148,7 +156,8 @@ export async function moderateMessage(text: string) {
 
   try {
     // 1. Chamar OpenAI para detectar conteúdo grave
-    const response = await openai.moderations.create({
+    const client = getOpenAIClient();
+    const response = await client.moderations.create({
       model: "omni-moderation-latest",
       input: text,
     });
