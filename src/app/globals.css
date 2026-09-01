@@ -190,3 +190,155 @@ html[data-force-dark-header="1"] header img {
 html[data-force-dark-header="1"] header .navbar-logo {
   border-color: transparent !important;
 }
+
+/* ============================================================
+   Página de detalhes do produto
+   ============================================================ */
+
+/* ---- Grid principal ---- */
+.product-detail-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+@media (min-width: 768px) {
+  .product-detail-grid {
+    display: grid;
+    grid-template-columns: 45fr 55fr;
+    gap: 2.5rem;
+    align-items: start;
+  }
+}
+
+/* ---- Coluna da imagem ---- */
+.product-image-col {
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .product-image-col {
+    /* A coluna acompanha a altura do conteúdo da coluna direita */
+    align-self: stretch;
+  }
+
+  .product-image-sticky {
+    position: sticky;
+    top: 5rem;
+  }
+}
+
+/* ---- Imagem principal ---- */
+.product-image-main {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 1.25rem;
+  border: 1px solid #DCCFB9;
+  background: #fff;
+}
+
+/* Mobile: aspect-ratio 3:4 para imagem grande e vertical */
+.product-image-main {
+  aspect-ratio: 3 / 4;
+}
+
+/* Desktop: maior para ocupar mais espaço vertical */
+@media (min-width: 768px) {
+  .product-image-main {
+    aspect-ratio: 3 / 4;
+    min-height: 480px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .product-image-main {
+    min-height: 560px;
+  }
+}
+
+/* Imagem interna: contain para não cortar/distorcer */
+.product-image-main img {
+  object-fit: contain !important;
+  padding: 1rem;
+}
+
+/* ---- Coluna de informações ---- */
+.product-info-col {
+  min-width: 0;
+}
+
+/* ---- Seções de conteúdo ---- */
+.product-section {
+  margin-top: 1.25rem;
+}
+
+.product-section-label {
+  font-size: 0.6875rem;   /* 11px */
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #6E7D63;
+  font-weight: 600;
+  margin-bottom: 0.375rem;
+}
+
+.product-section-text {
+  font-size: 0.875rem;    /* 14px */
+  line-height: 1.7;
+  color: #4A5740;
+}
+
+/* ---- Texto auxiliar/meta ---- */
+.product-text-muted {
+  color: #7A6E5D;
+}
+
+.product-detail-meta {
+  font-size: 0.8125rem;   /* 13px */
+  color: #6E7D63;
+}
+
+/* ============================================================
+   Produto – Dark mode
+   ============================================================ */
+
+html[data-theme="dark"] .product-image-main {
+  background-color: #1C2216 !important;
+  border-color: #2B331F !important;
+}
+
+html[data-theme="dark"] .product-section-label {
+  color: #93A583;
+}
+
+html[data-theme="dark"] .product-section-text {
+  color: #C8D4BC;
+}
+
+html[data-theme="dark"] .product-text-muted {
+  color: #8A9A7B;
+}
+
+html[data-theme="dark"] .product-detail-meta {
+  color: #93A583;
+}
+
+/* ============================================================
+   Produto – Mobile refinements
+   ============================================================ */
+
+@media (max-width: 767px) {
+  .product-detail-grid {
+    gap: 1.5rem;
+  }
+
+  .product-image-main {
+    aspect-ratio: 1 / 1;
+    min-height: auto;
+    border-radius: 1rem;
+  }
+
+  .product-info-col h1 {
+    font-size: 1.75rem;
+  }
+}
