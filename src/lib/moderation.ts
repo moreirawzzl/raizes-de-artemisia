@@ -1,8 +1,16 @@
 import OpenAI from "openai";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// Criar cliente OpenAI lazily (apenas quando necessário)
+let openai: OpenAI | null = null;
+
+function getOpenAIClient(): OpenAI {
+  if (!openai) {
+    openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+  }
+  return openai;
+}
 
 // Lista de palavrões em português (concisa e eficiente)
 const PORTUGUESE_SWEAR_WORDS = [
@@ -110,7 +118,7 @@ export function sanitizeMessage(text: string): string {
  * Retorna true se deve BLOQUEAR (conteúdo grave)
  * Retorna false se pode continuar (ok ou apenas palavrões)
  */
-function isSeriousViolation(categories: Record<string, boolean>): boolean {
+function isSeriousViolation(categories: any): boolean {
   // Conteúdo grave que deve ser BLOQUEADO
   const seriousCategories = [
     "violence",
@@ -148,18 +156,13 @@ export async function moderateMessage(text: string) {
 
   try {
     // 1. Chamar OpenAI para detectar conteúdo grave
-    const response = await openai.moderations.create({
+    const client = getOpenAIClient();
+    const response = await client.moderations.create({
       model: "omni-moderation-latest",
       input: text,
     });
 
     const result = response.results[0];
-
-    console.log("=== MODERAÇÃO OPENAI ===");
-    console.log("Mensagem:", text);
-    console.log("Flagged:", result.flagged);
-    console.log("Categorias:", result.categories);
-    console.log("========================");
 
     // 2. Verificar se tem conteúdo grave
     const hasSerious = isSeriousViolation(result.categories);
