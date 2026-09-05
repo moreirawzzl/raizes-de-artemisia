@@ -6,7 +6,13 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ itemId
   const { itemId } = await params;
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
-  const { quantity } = await req.json();
+  
+  const body = await req.json().catch(() => ({}));
+  const quantity = Number(body.quantity);
+
+  if (!Number.isInteger(quantity) || quantity < 1 || quantity > 99) {
+    return NextResponse.json({ error: "Quantidade deve ser um número inteiro entre 1 e 99" }, { status: 400 });
+  }
 
   // Verify item belongs to user's cart
   const item = await prisma.cartItem.findUnique({

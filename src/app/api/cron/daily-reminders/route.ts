@@ -1,6 +1,7 @@
-﻿import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { sendAbandonedCartEmail, sendReengagementEmail } from "@/lib/mail";
+import crypto from "crypto";
 
 export async function GET(req: Request) {
   const authHeader = req.headers.get("authorization") || "";
@@ -9,7 +10,11 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const token = authHeader.replace(/^Bearer\s+/i, "").trim();
-  if (token !== secret) {
+
+  const tokenBuffer = Buffer.from(token);
+  const secretBuffer = Buffer.from(secret);
+
+  if (tokenBuffer.length !== secretBuffer.length || !crypto.timingSafeEqual(tokenBuffer, secretBuffer)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

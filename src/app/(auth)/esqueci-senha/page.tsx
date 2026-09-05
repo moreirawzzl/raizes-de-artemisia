@@ -11,24 +11,11 @@ export default function EsqueciSenhaPage() {
   const router = useRouter();
   const [step, setStep] = useState<"email" | "codigo">("email");
   const [email, setEmail] = useState("");
-  const [devCode, setDevCode] = useState<string | null>(null);
-  const [showCodeSeconds, setShowCodeSeconds] = useState(10);
   const [emailSent, setEmailSent] = useState(false);
   const [code, setCode] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (devCode === null) return;
-    if (showCodeSeconds <= 0) {
-      setDevCode(null);
-      return;
-    }
-
-    const t = setTimeout(() => setShowCodeSeconds((s) => s - 1), 1000);
-    return () => clearTimeout(t);
-  }, [devCode, showCodeSeconds]);
 
   async function requestCode(e: React.FormEvent) {
     e.preventDefault();
@@ -46,10 +33,7 @@ export default function EsqueciSenhaPage() {
     setLoading(false);
     setStep("codigo");
 
-    if (data.devCode) {
-      setDevCode(data.devCode);
-      setShowCodeSeconds(10);
-    } else if (data.emailed) {
+    if (data.emailed) {
       setEmailSent(true);
     }
   }
@@ -99,25 +83,6 @@ export default function EsqueciSenhaPage() {
         {emailSent && (
           <div className="mb-4 rounded-lg bg-[#EAF0E6] px-3 py-3 text-left text-xs text-verde-principal">
             Enviamos um código para o seu e-mail. Confira a caixa de entrada (e o spam).
-          </div>
-        )}
-
-        {devCode && (
-          <div className="mb-4 rounded-lg bg-[#EAF0E6] px-3 py-3 text-left text-xs text-verde-principal">
-            <p className="mb-1 font-semibold">
-              Modo de teste — ainda sem envio por e-mail.
-            </p>
-
-            <p>
-              Seu código:{" "}
-              <span className="font-display text-lg tracking-widest">
-                {devCode}
-              </span>
-
-              <span className="ml-2 text-[10px] text-verde-secundario">
-                (some em {showCodeSeconds}s)
-              </span>
-            </p>
           </div>
         )}
 

@@ -21,8 +21,22 @@ export async function PATCH(req: Request) {
   const parsed = patchSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: parsed.error.errors[0].message }, { status: 400 });
 
+  const userId = (user as any).id;
+
+  if (parsed.data.username) {
+    const existing = await prisma.user.findFirst({
+      where: {
+        username: parsed.data.username,
+        id: { not: userId }
+      }
+    });
+    if (existing) {
+      return NextResponse.json({ error: "Este nome de usuário já está em uso" }, { status: 409 });
+    }
+  }
+
   const updated = await prisma.user.update({
-    where: { id: (user as any).id },
+    where: { id: userId },
     data: parsed.data
   });
 

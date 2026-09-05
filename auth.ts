@@ -40,42 +40,45 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
     }),
     Google({
-      clientId: process.env.GOOGLE_CLIENT_ID || process.env.AUTH_GOOGLE_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || process.env.AUTH_GOOGLE_SECRET
+      clientId: process.env.GOOGLE_CLIENT_ID || process.env.AUTH_GOOGLE_ID || "",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || process.env.AUTH_GOOGLE_SECRET || "",
+      allowDangerousEmailAccountLinking: true
     })
   ],
   callbacks: {
     async signIn({ user, account }) {
       try {
-      if (account?.provider === "google") {
-        const email = user.email!;
-        const existing = await prisma.user.findUnique({ where: { email } });
-        if (!existing) {
-          const baseUsername = (user.name || email.split("@")[0]).replace(/\s+/g, "").toLowerCase();
-          let username = baseUsername;
-          let i = 1;
-          while (await prisma.user.findUnique({ where: { username } })) {
-            username = `${baseUsername}${i++}`;
-          }
-          await prisma.user.create({
-            data: {
-              username,
-              email,
-              avatarUrl: user.image ?? undefined,
-              provider: "google",
-              hasPassword: false,
-              cart: { create: {} }
+        if (account?.provider === "google") {
+          const email = user.email;
+          if (!email) return false;
+
+          const existing = await prisma.user.findUnique({ where: { email } });
+          if (!existing) {
+            const baseUsername = (user.name || email.split("@")[0]).replace(/\s+/g, "").toLowerCase();
+            let username = baseUsername || "usuario";
+            let i = 1;
+            while (await prisma.user.findUnique({ where: { username } })) {
+              username = `${baseUsername}${i++}`;
             }
-          });
-        } else if (existing.banned) {
-          return "/login?erro=banido";
-        } else if (!existing.allowGoogleLogin) {
-          return "/login?erro=google-desativado";
-        } else if (!existing.avatarUrl && user.image) {
-          await prisma.user.update({ where: { email }, data: { avatarUrl: user.image } });
+            await prisma.user.create({
+              data: {
+                username,
+                email,
+                avatarUrl: user.image ?? undefined,
+                provider: "google",
+                hasPassword: false,
+                cart: { create: {} }
+              }
+            });
+          } else if (existing.banned) {
+            return "/login?erro=banido";
+          } else if (!existing.allowGoogleLogin) {
+            return "/login?erro=google-desativado";
+          } else if (!existing.avatarUrl && user.image) {
+            await prisma.user.update({ where: { email }, data: { avatarUrl: user.image } });
+          }
         }
-      }
-      return true;
+        return true;
       } catch (err) {
         console.error("=== ERRO NO SIGNIN DO GOOGLE ===", err);
         return false;

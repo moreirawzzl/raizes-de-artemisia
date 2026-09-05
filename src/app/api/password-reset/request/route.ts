@@ -18,7 +18,9 @@ export async function POST(req: Request) {
 
   const emailed = await sendResetCodeEmail(user.email, code);
 
-  // Se o Gmail não estiver configurado (ex: ambiente local sem as chaves),
-  // cai de volta no modo antigo (mostra o código na tela) só como reserva.
-  return NextResponse.json({ ok: true, emailed, devCode: emailed ? undefined : code });
+  if (process.env.NODE_ENV === "development" && !emailed) {
+    console.log(`[DEV ONLY] Código de redefinição para ${user.email}: ${code}`);
+  }
+
+  return NextResponse.json({ ok: true, emailed });
 }

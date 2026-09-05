@@ -35,7 +35,29 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     }
   }
 
-  const user = await prisma.user.update({ where: { id }, data: updateData });
+  const user = await prisma.user.update({
+    where: { id },
+    data: updateData,
+    select: {
+      id: true,
+      username: true,
+      email: true,
+      role: true,
+      avatarUrl: true,
+      provider: true,
+      hasPassword: true,
+      theme: true,
+      fontSize: true,
+      soundEnabled: true,
+      animationsEnabled: true,
+      allowGoogleLogin: true,
+      banned: true,
+      bannedAt: true,
+      banReason: true,
+      lastLoginAt: true,
+      createdAt: true
+    }
+  });
 
   if (banned === true) {
     await sendBanNoticeEmail(user.email, reason);
