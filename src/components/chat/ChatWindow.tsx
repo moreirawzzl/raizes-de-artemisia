@@ -70,7 +70,14 @@ export function ChatWindow({ initialMessages, isAdmin = false, userId }: ChatWin
         setMessages((prev) => [...prev, newMsg]);
         setBody("");
         playSound("add");
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        alert(errData.error || "Não foi possível enviar a mensagem.");
+        playSound("error");
       }
+    } catch {
+      alert("Erro de conexão ao enviar mensagem.");
+      playSound("error");
     } finally {
       setSending(false);
     }
