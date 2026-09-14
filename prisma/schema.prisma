@@ -22,6 +22,7 @@ model User {
   animationsEnabled  Boolean @default(true)
   allowGoogleLogin   Boolean @default(true)
   lastLoginAt        DateTime?
+  lastSeenAt         DateTime?
   reengagementEmailSentAt DateTime?
   banned             Boolean @default(false)
   bannedAt           DateTime?
@@ -255,4 +256,11 @@ model Review {
   createdAt DateTime @default(now())
 
   @@unique([orderId, productId])
+}
+model RateLimitHit {
+  id        String   @id @default(cuid())
+  key       String
+  createdAt DateTime @default(now())
+
+  @@index([key, createdAt])
 }

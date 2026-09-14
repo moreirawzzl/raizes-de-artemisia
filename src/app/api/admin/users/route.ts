@@ -22,6 +22,7 @@ export async function GET() {
       bannedAt: true,
       banReason: true,
       lastLoginAt: true,
+      lastSeenAt: true,
       createdAt: true
     },
     orderBy: { createdAt: "desc" }

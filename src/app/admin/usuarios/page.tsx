@@ -14,7 +14,9 @@ export default async function AdminUsuariosPage() {
           email: u.email,
           role: u.role,
           banned: u.banned,
-          createdAt: u.createdAt.toISOString()
+          createdAt: u.createdAt.toISOString(),
+          lastLoginAt: u.lastLoginAt ? u.lastLoginAt.toISOString() : null,
+          lastSeenAt: u.lastSeenAt ? u.lastSeenAt.toISOString() : null
         }))}
       />
     </div>

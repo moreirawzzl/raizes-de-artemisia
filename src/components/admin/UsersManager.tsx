@@ -1,7 +1,8 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useSettings } from "@/components/providers/SettingsProvider";
+import { isOnline, timeAgo } from "@/lib/format";
 
 interface UserRow {
   id: string;
@@ -10,12 +11,22 @@ interface UserRow {
   role: string;
   banned: boolean;
   createdAt: string;
+  lastLoginAt: string | null;
+  lastSeenAt: string | null;
 }
 
 export function UsersManager({ initialUsers }: { initialUsers: UserRow[] }) {
   const [users, setUsers] = useState(initialUsers);
   const { data: session } = useSession();
   const { playSound } = useSettings();
+
+  // "há X min" e o dot online/offline dependem de Date.now(), então força um
+  // re-render a cada 30s pra eles não ficarem parados na tela.
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setTick((t) => t + 1), 30_000);
+    return () => clearInterval(id);
+  }, []);
 
   async function toggleRole(u: UserRow) {
     const newRole = u.role === "ADMIN" ? "USER" : "ADMIN";
@@ -80,6 +91,7 @@ async function sendMessage(u: UserRow) {
             <th className="p-2">Usuário</th>
             <th className="p-2">E-mail</th>
             <th className="p-2">Desde</th>
+            <th className="p-2">Status</th>
             <th className="p-2">Papel</th>
             <th className="p-2"></th>
           </tr>
@@ -90,6 +102,19 @@ async function sendMessage(u: UserRow) {
               <td className="p-2">{u.username}</td>
               <td className="p-2">{u.email}</td>
               <td className="p-2">{new Date(u.createdAt).toLocaleDateString("pt-BR")}</td>
+              <td className="p-2">
+                {isOnline(u.lastSeenAt) ? (
+                  <span className="flex items-center gap-1.5 text-[11px] text-green-700">
+                    <span className="h-2 w-2 rounded-full bg-green-500" />
+                    online
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1.5 text-[11px] text-verde-secundario/70">
+                    <span className="h-2 w-2 rounded-full bg-gray-300" />
+                    {u.lastSeenAt ? timeAgo(u.lastSeenAt) : u.lastLoginAt ? timeAgo(u.lastLoginAt) : "nunca acessou"}
+                  </span>
+                )}
+              </td>
               <td className="p-2">
                 <span className={`rounded-full px-2.5 py-0.5 text-[10px] uppercase ${u.role === "ADMIN" ? "bg-verde-principal text-white" : "bg-fundo text-verde-secundario"}`}>
                   {u.role === "ADMIN" ? "admin" : "cliente"}

@@ -1,4 +1,4 @@
-﻿-- Add productId to Message to support linking messages to products
+-- Add productId to Message to support linking messages to products
 ALTER TABLE "Message" ADD COLUMN "productId" TEXT;
 
 -- Add foreign key constraint linking to Product(id). Allow NULLs; set to NULL on delete of product.
