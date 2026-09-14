@@ -7,13 +7,37 @@ import { ViewTracker } from "@/components/store/ViewTracker";
 import Image from "next/image";
 import { FavoriteButton } from "@/components/store/FavoriteButton";
 import { ProductReviews } from "@/components/store/ProductReviews";
+import type { Metadata } from "next";
+import { cache } from "react";
 
-export default async function ProdutoPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  const product = await prisma.product.findFirst({
+// cache() garante que a mesma consulta não roda 2x (uma pro generateMetadata,
+// outra pro componente da página) — o Next dedupe automaticamente por requisição.
+const getProduct = cache(async (id: string) => {
+  return prisma.product.findFirst({
     where: { OR: [{ id }, { slug: id }] },
     include: { images: true, category: true }
   });
+});
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params;
+  const product = await getProduct(id);
+  if (!product || product.hidden) return { title: "Produto não encontrado" };
+
+  return {
+    title: product.name,
+    description: product.description?.slice(0, 160) || `${product.name} — Raízes de Artemísia`,
+    openGraph: {
+      title: product.name,
+      description: product.description?.slice(0, 160),
+      images: product.images[0]?.url ? [product.images[0].url] : undefined
+    }
+  };
+}
+
+export default async function ProdutoPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const product = await getProduct(id);
   if (!product || product.hidden) notFound();
 
   const [relacionados, reviews] = await Promise.all([

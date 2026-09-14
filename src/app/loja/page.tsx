@@ -2,6 +2,12 @@ import { prisma } from "@/lib/prisma";
 import { ProductGrid } from "@/components/store/ProductGrid";
 import { SearchSortBar } from "@/components/store/SearchSortBar";
 import { Prisma } from "@prisma/client";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Loja",
+  description: "Confira nosso catálogo de banhos de ervas, incensos e produtos artesanais feitos com respeito à natureza."
+};
 
 function buildOrderBy(sort?: string): Prisma.ProductOrderByWithRelationInput {
   switch (sort) {

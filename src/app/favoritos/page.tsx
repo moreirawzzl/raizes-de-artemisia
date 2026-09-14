@@ -1,6 +1,12 @@
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth-helpers";
 import { ProductGrid } from "@/components/store/ProductGrid";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Favoritos",
+  robots: { index: false, follow: false }
+};
 
 export default async function FavoritosPage() {
   const user = await requireUser();

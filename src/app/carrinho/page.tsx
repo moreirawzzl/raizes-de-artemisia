@@ -1,6 +1,12 @@
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth-helpers";
 import { CartClient } from "@/components/store/CartClient";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Carrinho",
+  robots: { index: false, follow: false }
+};
 
 export default async function CarrinhoPage() {
   const user = await requireUser();

@@ -1,6 +1,12 @@
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth-helpers";
 import { ChatWindow } from "@/components/chat/ChatWindow";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Chat",
+  robots: { index: false, follow: false }
+};
 
 export default async function ChatPage() {
   const user = await requireUser();

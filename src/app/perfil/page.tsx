@@ -3,6 +3,12 @@ import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth-helpers";
 import { formatMoney } from "@/lib/format";
 import { ReviewSection } from "@/components/store/ReviewSection";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Meu perfil",
+  robots: { index: false, follow: false }
+};
 
 export default async function PerfilPage() {
   const user = await requireUser();

@@ -19,7 +19,10 @@ const montserrat = Montserrat({
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXTAUTH_URL || "http://localhost:3000"),
-  title: "Raízes de Artemísia — Produção Artesanal",
+  title: {
+    default: "Raízes de Artemísia — Produção Artesanal",
+    template: "%s | Raízes de Artemísia"
+  },
   description: "Banhos de ervas, rituais e produtos artesanais feitos com respeito à natureza. Ervas, ritual, conexão.",
   openGraph: {
     title: "Raízes de Artemísia",
