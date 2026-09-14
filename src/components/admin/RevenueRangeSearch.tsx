@@ -36,7 +36,7 @@ export function RevenueRangeSearch() {
       </div>
 
       {result && (
-        <div className="mt-5 grid grid-cols-3 gap-4">
+        <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div className="rounded-xl2 border border-bege-claro bg-fundo p-4">
             <p className="text-[10.5px] uppercase text-verde-secundario">Receita</p>
             <p className="font-display text-2xl text-verde-principal">{formatMoney(result.revenue)}</p>
