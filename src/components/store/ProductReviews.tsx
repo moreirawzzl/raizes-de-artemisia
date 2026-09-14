@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 interface Review {
   id: string;
   rating: number;
@@ -42,9 +44,11 @@ export function ProductReviews({ reviews, avg, count }: ProductReviewsProps) {
           <li key={r.id} className="rounded-xl2 border border-bege-claro bg-white p-4">
             <div className="mb-2 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <img
+                <Image
                   src={r.user.avatarUrl || "/images/monogram.jpg"}
                   alt=""
+                  width={28}
+                  height={28}
                   className="h-7 w-7 rounded-full object-cover border border-bege-claro"
                 />
                 <span className="text-sm font-medium text-verde-principal">{r.user.username}</span>

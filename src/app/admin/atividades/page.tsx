@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth-helpers";
 import { redirect } from "next/navigation";
+import Image from "next/image";
 
 export default async function AdminAtividadesPage() {
   const user = await requireUser();
@@ -55,7 +56,7 @@ export default async function AdminAtividadesPage() {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
                       {log.admin.avatarUrl && (
-                        <img src={log.admin.avatarUrl} alt="" className="h-6 w-6 rounded-full" />
+                        <Image src={log.admin.avatarUrl} alt="" width={24} height={24} className="h-6 w-6 rounded-full" />
                       )}
                       <span className="font-medium text-verde-principal">{log.admin.username}</span>
                     </div>

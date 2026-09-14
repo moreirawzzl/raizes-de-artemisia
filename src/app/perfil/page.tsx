@@ -4,6 +4,7 @@ import { requireUser } from "@/lib/auth-helpers";
 import { formatMoney } from "@/lib/format";
 import { ReviewSection } from "@/components/store/ReviewSection";
 import type { Metadata } from "next";
+import Image from "next/image";
 
 export const metadata: Metadata = {
   title: "Meu perfil",
@@ -33,9 +34,11 @@ export default async function PerfilPage() {
   return (
     <main className="mx-auto max-w-2xl px-6 py-12">
       <div className="mb-8 flex items-center gap-5">
-        <img
+        <Image
           src={dbUser?.avatarUrl || "/images/monogram.jpg"}
           alt=""
+          width={80}
+          height={80}
           className="h-20 w-20 rounded-full border border-bege-claro object-cover"
         />
         <div>

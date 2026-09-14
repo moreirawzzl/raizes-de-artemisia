@@ -49,7 +49,7 @@ export default function CompletarCadastroPage() {
     <div className="flex min-h-[85vh] items-center justify-center px-6 py-10">
       <div className="w-full max-w-[400px] rounded-xl2 border border-bege-claro bg-white p-9 text-center shadow-soft">
         {session?.user?.image && (
-          <img src={session.user.image} alt="" className="mx-auto mb-3 h-16 w-16 rounded-full object-cover" />
+          <Image src={session.user.image} alt="" width={64} height={64} className="mx-auto mb-3 h-16 w-16 rounded-full object-cover" />
         )}
         <h1 className="font-display text-3xl text-verde-principal">Bem-vinda, {session?.user?.name}!</h1>
         <p className="mb-6 mt-2 text-[13px] leading-relaxed text-verde-secundario">

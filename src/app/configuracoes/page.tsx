@@ -2,6 +2,7 @@
 import { useState, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { useSettings } from "@/components/providers/SettingsProvider";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -118,9 +119,11 @@ export default function ConfiguracoesPage() {
       <section className="mb-8 rounded-xl2 border border-bege-claro bg-white p-6">
         <h2 className="mb-4 font-display text-xl text-verde-principal">Foto de perfil</h2>
         <div className="flex items-center gap-4">
-          <img
+          <Image
             src={user?.avatarUrl || user?.image || "/images/monogram.jpg"}
             alt=""
+            width={64}
+            height={64}
             className="h-16 w-16 rounded-full object-cover border border-bege-claro"
           />
           <Button type="button" variant="outline" onClick={() => fileRef.current?.click()} disabled={uploadingAvatar}>

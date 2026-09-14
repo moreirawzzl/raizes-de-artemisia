@@ -90,13 +90,15 @@ export async function Navbar() {
                 href="/perfil"
                 className="flex items-center gap-2"
               >
-                <img
+                <Image
                   src={
                     (user as any).avatarUrl ||
                     (user as any).image ||
                     "/images/monogram.jpg"
                   }
                   alt=""
+                  width={28}
+                  height={28}
                   className="h-7 w-7 rounded-full border border-bege-claro object-cover"
                 />
 
