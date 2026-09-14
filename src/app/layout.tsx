@@ -17,8 +17,20 @@ const montserrat = Montserrat({
   variable: "--font-montserrat"
 });
 
+function safeBaseUrl(): URL {
+  const raw = process.env.NEXTAUTH_URL || "http://localhost:3000";
+  try {
+    return new URL(raw);
+  } catch {
+    // Se NEXTAUTH_URL estiver mal formado (ex: sem "https://"), não deixa
+    // o site inteiro cair por causa disso — cai num fallback seguro.
+    console.error(`NEXTAUTH_URL inválida para metadataBase: "${raw}" — usando fallback.`);
+    return new URL("https://raizes-de-artemisia.vercel.app");
+  }
+}
+
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXTAUTH_URL || "http://localhost:3000"),
+  metadataBase: safeBaseUrl(),
   title: {
     default: "Raízes de Artemísia — Produção Artesanal",
     template: "%s | Raízes de Artemísia"
