@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth-helpers";
+import { logAdminAction } from "@/lib/admin-log";
 
 export async function POST() {
   try {
-    await requireAdmin();
+    const me = await requireAdmin();
 
     // 1. Apaga todos os pedidos (isso apaga os OrderItems e Reviews relacionados por causa do Cascade)
     await prisma.order.deleteMany();
@@ -25,6 +26,12 @@ export async function POST() {
       where: { id: "main" },
       create: { id: "main", revenueResetAt: null, materialCostResetAt: null },
       update: { revenueResetAt: null, materialCostResetAt: null }
+    });
+
+    await logAdminAction({
+      adminId: (me as any).id,
+      action: "FACTORY_RESET",
+      details: "Apagou todos os pedidos, custos de material e zerou estatísticas de venda/visualização"
     });
 
     return NextResponse.json({ success: true });

@@ -26,7 +26,11 @@ export default async function AdminAtividadesPage() {
     CONFIRM_ORDER: "✅ Confirmou pedido",
     DELIVER_ORDER: "📦 Finalizou entrega",
     CANCEL_ORDER: "❌ Cancelou pedido",
-    REOPEN_ORDER: "🔄 Reabriu pedido"
+    REOPEN_ORDER: "🔄 Reabriu pedido",
+    FACTORY_RESET: "🧨 Factory reset (apagou pedidos e custos)",
+    RESET_REVENUE: "🔁 Reset seguro de faturamento",
+    RESET_ALL: "🔁 Reset seguro (faturamento + custo de material)",
+    BROADCAST: "📢 Enviou aviso pra todos os usuários"
   };
 
   return (
