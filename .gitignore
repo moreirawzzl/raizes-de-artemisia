@@ -14,3 +14,6 @@ public/uploads/*
 *.bak
 *.tmp
 .GuiaParaAgentes
+*.tsbuildinfo
+.todo.json
+todo.md
