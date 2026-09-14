@@ -108,7 +108,8 @@ export function CouponManager({ initialCoupons }: { initialCoupons: Coupon[] }) 
         {coupons.length === 0 ? (
           <p className="text-sm text-verde-secundario">Nenhum cupom criado ainda.</p>
         ) : (
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-bege-claro text-left text-[10.5px] uppercase tracking-wide text-verde-secundario">
                 <th className="p-2">Código</th>
@@ -142,7 +143,8 @@ export function CouponManager({ initialCoupons }: { initialCoupons: Coupon[] }) 
                 </tr>
               ))}
             </tbody>
-          </table>
+            </table>
+          </div>
         )}
       </div>
     </div>

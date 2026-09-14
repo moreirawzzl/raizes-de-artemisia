@@ -85,7 +85,8 @@ async function sendMessage(u: UserRow) {
   }
   return (
     <div className="rounded-xl2 border border-bege-claro bg-white p-6">
-      <table className="w-full text-sm">
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-bege-claro text-left text-[10.5px] uppercase tracking-wide text-verde-secundario">
             <th className="p-2">Usuário</th>
@@ -150,7 +151,8 @@ async function sendMessage(u: UserRow) {
             </tr>
           ))}
         </tbody>
-      </table>
+        </table>
+      </div>
     </div>
   );
 }
