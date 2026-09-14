@@ -26,7 +26,7 @@ export default async function AdminAtividadesPage() {
     CONFIRM_ORDER: "✅ Confirmou pedido",
     DELIVER_ORDER: "📦 Finalizou entrega",
     CANCEL_ORDER: "❌ Cancelou pedido",
-    REOPEN_ORDER: "🔄 Reabreur pedido"
+    REOPEN_ORDER: "🔄 Reabriu pedido"
   };
 
   return (

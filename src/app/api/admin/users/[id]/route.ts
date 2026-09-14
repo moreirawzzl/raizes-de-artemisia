@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin, getCurrentUser } from "@/lib/auth-helpers";
 import { sendBanNoticeEmail } from "@/lib/mail";
+import { logAdminAction } from "@/lib/admin-log";
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const me = await requireAdmin();
@@ -61,6 +62,24 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 
   if (banned === true) {
     await sendBanNoticeEmail(user.email, reason);
+  }
+
+  if (role !== undefined) {
+    await logAdminAction({
+      adminId: (me as any).id,
+      action: role === "ADMIN" ? "PROMOTE_ADMIN" : "DEMOTE_ADMIN",
+      targetUserId: id,
+      details: `${user.username} (${user.email})`
+    });
+  }
+
+  if (banned !== undefined) {
+    await logAdminAction({
+      adminId: (me as any).id,
+      action: banned ? "BAN_USER" : "UNBAN_USER",
+      targetUserId: id,
+      details: banned ? `${user.username} (${user.email})${reason ? ` — motivo: ${reason}` : ""}` : `${user.username} (${user.email})`
+    });
   }
 
   return NextResponse.json(user);

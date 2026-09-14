@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth-helpers";
+import { logAdminAction } from "@/lib/admin-log";
 
 const VALID_STATUSES = ["PAID", "AWAITING_PAYMENT", "CANCELED", "DELIVERED"];
 const PAID_LIKE = ["PAID", "DELIVERED"];
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    await requireAdmin();
+    const me = await requireAdmin();
     const { id } = await params;
     const { status } = await req.json();
 
@@ -52,6 +53,21 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
           ]
         : [])
     ]);
+
+    let action = "";
+    if (status === "CANCELED") action = "CANCEL_ORDER";
+    else if (status === "DELIVERED") action = "DELIVER_ORDER";
+    else if (status === "PAID" && order.status === "DELIVERED") action = "REOPEN_ORDER";
+    else if (status === "PAID") action = "CONFIRM_ORDER";
+
+    if (action) {
+      await logAdminAction({
+        adminId: (me as any).id,
+        action,
+        orderId: id,
+        details: `Pedido #${order.orderNumber} — ${order.status} → ${status}`
+      });
+    }
 
     return NextResponse.json({ ok: true });
   } catch (err) {
