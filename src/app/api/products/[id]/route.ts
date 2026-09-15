@@ -5,7 +5,7 @@ import { requireAdmin } from "@/lib/auth-helpers";
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
-    const product = await prisma.product.findUnique({ where: { id }, include: { images: true } });
+    const product = await prisma.product.findUnique({ where: { id }, include: { images: true, tags: true } });
     if (!product) return NextResponse.json({ error: "Não encontrado" }, { status: 404 });
     return NextResponse.json(product);
   } catch (err) {
@@ -19,7 +19,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     await requireAdmin();
     const { id } = await params;
     const body = await req.json();
-    const { images, ...data } = body;
+    const { images, notifyCustomers, tagIds, ...data } = body;
 
     await prisma.productImage.deleteMany({ where: { productId: id } });
 
@@ -27,9 +27,13 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       where: { id },
       data: {
         ...data,
-        images: { create: (images as string[])?.map((url, i) => ({ url, position: i })) ?? [] }
+        images: { create: (images as string[])?.map((url, i) => ({ url, position: i })) ?? [] },
+        // set (em vez de connect) substitui a lista inteira pelas etiquetas
+        // atualmente marcadas no formulário — se o usuário desmarcou uma,
+        // ela precisa sair da associação também.
+        tags: { set: ((tagIds as string[]) ?? []).map((tagId) => ({ id: tagId })) }
       },
-      include: { images: true }
+      include: { images: true, tags: true }
     });
 
     return NextResponse.json(product);

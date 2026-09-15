@@ -15,7 +15,8 @@ const productSchema = z.object({
   featured: z.boolean().default(false),
   notifyCustomers: z.boolean().default(false),
   images: z.array(z.string()).default([]),
-  categoryId: z.string().optional().nullable()
+  categoryId: z.string().optional().nullable(),
+  tagIds: z.array(z.string()).default([])
 });
 
 function slugify(name: string) {
@@ -25,7 +26,7 @@ function slugify(name: string) {
 
 export async function GET() {
   const products = await prisma.product.findMany({
-    include: { images: true, category: true },
+    include: { images: true, category: true, tags: true },
     orderBy: { createdAt: "desc" }
   });
   return NextResponse.json(products);
@@ -37,12 +38,13 @@ export async function POST(req: Request) {
   const parsed = productSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: parsed.error.errors[0].message }, { status: 400 });
 
-  const { images, notifyCustomers, ...data } = parsed.data;
+  const { images, notifyCustomers, tagIds, ...data } = parsed.data;
   const product = await prisma.product.create({
     data: {
       ...data,
       slug: slugify(data.name),
-      images: { create: images.map((url, i) => ({ url, position: i })) }
+      images: { create: images.map((url, i) => ({ url, position: i })) },
+      tags: { connect: tagIds.map((id) => ({ id })) }
     },
     include: { images: true }
   });

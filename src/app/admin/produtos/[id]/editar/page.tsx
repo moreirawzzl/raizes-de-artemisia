@@ -4,13 +4,17 @@ import { ProductForm } from "@/components/admin/ProductForm";
 
 export default async function EditarProdutoPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const product = await prisma.product.findUnique({ where: { id }, include: { images: true } });
+  const [product, tags] = await Promise.all([
+    prisma.product.findUnique({ where: { id }, include: { images: true, tags: true } }),
+    prisma.tag.findMany({ orderBy: { name: "asc" } })
+  ]);
   if (!product) notFound();
 
   return (
     <div>
       <h1 className="mb-6 font-display text-3xl text-verde-principal">Editar produto</h1>
       <ProductForm
+        availableTags={tags}
         initial={{
           id: product.id,
           name: product.name,
@@ -22,7 +26,8 @@ export default async function EditarProdutoPage({ params }: { params: Promise<{ 
           price: product.price.toString(),
           stock: product.stock,
           featured: product.featured,
-          images: product.images.map((i) => i.url)
+          images: product.images.map((i) => i.url),
+          tagIds: product.tags.map((t) => t.id)
         }}
       />
     </div>

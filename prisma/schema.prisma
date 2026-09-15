@@ -21,6 +21,7 @@ model User {
   soundEnabled       Boolean @default(true)
   animationsEnabled  Boolean @default(true)
   allowGoogleLogin   Boolean @default(true)
+  emailOptIn         Boolean @default(true)
   lastLoginAt        DateTime?
   lastSeenAt         DateTime?
   reengagementEmailSentAt DateTime?
@@ -91,6 +92,7 @@ model Product {
   salesCount  Int            @default(0)
   categoryId  String?
   category    Category?      @relation(fields: [categoryId], references: [id])
+  tags        Tag[]
   images      ProductImage[]
   cartItems   CartItem[]
   orderItems  OrderItem[]
@@ -263,4 +265,22 @@ model RateLimitHit {
   createdAt DateTime @default(now())
 
   @@index([key, createdAt])
+}
+
+// Etiqueta de produto. Relação N:N implícita com Product (Prisma cria a
+// tabela de junção _ProductToTag sozinho) — optei por implícita em vez de
+// um modelo explícito tipo ProductTag porque a relação não carrega nenhum
+// dado próprio (sem quantidade, posição, etc.), diferente de Favorite/
+// CartItem/OrderItem no schema, que sempre têm campos extras justificando
+// um modelo à parte. Editar nome/cores aqui reflete automaticamente em
+// todo produto que usa a etiqueta, por ser a mesma linha (não há cópia).
+// Excluir uma Tag não apaga o Product — só remove a linha de junção.
+model Tag {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  bgColor     String
+  borderColor String
+  textColor   String
+  products    Product[]
+  createdAt   DateTime  @default(now())
 }

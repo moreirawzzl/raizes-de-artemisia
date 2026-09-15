@@ -14,6 +14,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <div className="mb-8 flex flex-wrap gap-2">
         <Link href="/admin" className="rounded-full border border-bege-claro bg-white px-5 py-2 text-xs text-verde-principal hover:bg-verde-principal hover:text-white">Painel geral</Link>
         <Link href="/admin/produtos" className="rounded-full border border-bege-claro bg-white px-5 py-2 text-xs text-verde-principal hover:bg-verde-principal hover:text-white">Produtos</Link>
+        <Link href="/admin/etiquetas" className="rounded-full border border-bege-claro bg-white px-5 py-2 text-xs text-verde-principal hover:bg-verde-principal hover:text-white">Etiquetas</Link>
         <Link href="/admin/produtos/novo" className="rounded-full border border-bege-claro bg-white px-5 py-2 text-xs text-verde-principal hover:bg-verde-principal hover:text-white">Adicionar produto</Link>
         <Link href="/admin/cupons" className="rounded-full border border-bege-claro bg-white px-5 py-2 text-xs text-verde-principal hover:bg-verde-principal hover:text-white">Cupons</Link>
         <Link href="/admin/pedidos" className="rounded-full border border-bege-claro bg-white px-5 py-2 text-xs text-verde-principal hover:bg-verde-principal hover:text-white">Pedidos</Link>

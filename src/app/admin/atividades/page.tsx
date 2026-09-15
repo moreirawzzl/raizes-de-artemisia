@@ -30,7 +30,10 @@ export default async function AdminAtividadesPage() {
     FACTORY_RESET: "🧨 Factory reset (apagou pedidos e custos)",
     RESET_REVENUE: "🔁 Reset seguro de faturamento",
     RESET_ALL: "🔁 Reset seguro (faturamento + custo de material)",
-    BROADCAST: "📢 Enviou aviso pra todos os usuários"
+    BROADCAST: "📢 Enviou aviso pra todos os usuários",
+    CREATE_TAG: "🏷️ Criou etiqueta",
+    UPDATE_TAG: "🏷️ Editou etiqueta",
+    DELETE_TAG: "🏷️ Excluiu etiqueta"
   };
 
   return (

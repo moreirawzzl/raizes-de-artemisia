@@ -6,6 +6,15 @@ import { maskMoneyInput, parseMaskedMoney } from "@/lib/format";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
 import { Button } from "@/components/ui/Button";
+import { TagBadge } from "@/components/store/TagBadge";
+
+interface TagOption {
+  id: string;
+  name: string;
+  bgColor: string;
+  borderColor: string;
+  textColor: string;
+}
 
 interface InitialData {
   id?: string;
@@ -19,9 +28,10 @@ interface InitialData {
   stock?: number;
   featured?: boolean;
   images?: string[];
+  tagIds?: string[];
 }
 
-export function ProductForm({ initial }: { initial?: InitialData }) {
+export function ProductForm({ initial, availableTags = [] }: { initial?: InitialData; availableTags?: TagOption[] }) {
   const router = useRouter();
   const isEditing = !!initial?.id;
 
@@ -38,8 +48,13 @@ export function ProductForm({ initial }: { initial?: InitialData }) {
   const [featured, setFeatured] = useState(initial?.featured ?? false);
   const [notifyCustomers, setNotifyCustomers] = useState(false);
   const [images, setImages] = useState<string[]>(initial?.images ?? []);
+  const [tagIds, setTagIds] = useState<string[]>(initial?.tagIds ?? []);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  function toggleTag(id: string) {
+    setTagIds((prev) => (prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id]));
+  }
 
   async function handleFiles(e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target.files;
@@ -67,7 +82,8 @@ export function ProductForm({ initial }: { initial?: InitialData }) {
       stock: Number(stock),
       featured,
       notifyCustomers,
-      images
+      images,
+      tagIds
     };
 
     const res = await fetch(isEditing ? `/api/products/${initial!.id}` : "/api/products", {
@@ -155,6 +171,32 @@ export function ProductForm({ initial }: { initial?: InitialData }) {
           <Label>Estoque</Label>
           <Input type="number" min={0} value={stock} onChange={(e) => setStock(Number(e.target.value))} />
         </div>
+
+        {availableTags.length > 0 && (
+          <div className="sm:col-span-2">
+            <Label>Etiquetas</Label>
+            {tagIds.length > 0 && (
+              <div className="mb-2 flex flex-wrap gap-2">
+                {availableTags.filter((t) => tagIds.includes(t.id)).map((t) => (
+                  <button key={t.id} type="button" onClick={() => toggleTag(t.id)} className="group relative">
+                    <TagBadge tag={t} />
+                    <span className="absolute -right-1.5 -top-1.5 hidden h-4 w-4 items-center justify-center rounded-full bg-[#8a4a3a] text-[10px] text-white group-hover:flex">✕</span>
+                  </button>
+                ))}
+              </div>
+            )}
+            <div className="flex flex-wrap gap-2 rounded-xl border border-dashed border-bege-claro bg-fundo p-3">
+              {availableTags.filter((t) => !tagIds.includes(t.id)).map((t) => (
+                <button key={t.id} type="button" onClick={() => toggleTag(t.id)} className="opacity-70 transition hover:opacity-100">
+                  <TagBadge tag={t} />
+                </button>
+              ))}
+              {availableTags.every((t) => tagIds.includes(t.id)) && (
+                <span className="text-xs text-verde-secundario">Todas as etiquetas já selecionadas</span>
+              )}
+            </div>
+          </div>
+        )}
 
         <div className="flex flex-col gap-3 sm:col-span-2">
           <div className="flex items-center gap-2">
