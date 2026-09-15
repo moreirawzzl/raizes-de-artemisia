@@ -14,7 +14,8 @@ export const registerSchema = z.object({
   username: z.string().trim().min(3, "Usuário deve ter no mínimo 3 caracteres").max(24),
   email: z.string().trim().toLowerCase().email("E-mail inválido"),
   password: passwordSchema,
-  confirmPassword: z.string()
+  confirmPassword: z.string(),
+  emailOptIn: z.boolean().default(true)
 }).refine((data) => data.password === data.confirmPassword, {
   message: "As senhas não coincidem",
   path: ["confirmPassword"]

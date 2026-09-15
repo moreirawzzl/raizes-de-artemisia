@@ -17,7 +17,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: parsed.error.errors[0].message }, { status: 400 });
   }
 
-  const { username, email, password } = parsed.data;
+  const { username, email, password, emailOptIn } = parsed.data;
 
   const existingEmail = await prisma.user.findUnique({ where: { email } });
   if (existingEmail) return NextResponse.json({ error: "Já existe uma conta com este e-mail." }, { status: 409 });
@@ -27,7 +27,7 @@ export async function POST(req: Request) {
 
   const passwordHash = await bcrypt.hash(password, 12);
   const user = await prisma.user.create({
-    data: { username, email, passwordHash, hasPassword: true, provider: "credentials", cart: { create: {} } }
+    data: { username, email, passwordHash, hasPassword: true, provider: "credentials", emailOptIn, cart: { create: {} } }
   });
 
   return NextResponse.json({ id: user.id }, { status: 201 });

@@ -9,6 +9,7 @@ const patchSchema = z.object({
   soundEnabled: z.boolean().optional(),
   animationsEnabled: z.boolean().optional(),
   allowGoogleLogin: z.boolean().optional(),
+  emailOptIn: z.boolean().optional(),
   username: z.string().min(3).max(24).optional(),
   avatarUrl: z.string().optional()
 });
@@ -46,6 +47,7 @@ export async function PATCH(req: Request) {
     soundEnabled: updated.soundEnabled,
     animationsEnabled: updated.animationsEnabled,
     allowGoogleLogin: updated.allowGoogleLogin,
+    emailOptIn: updated.emailOptIn,
     username: updated.username,
     avatarUrl: updated.avatarUrl
   });

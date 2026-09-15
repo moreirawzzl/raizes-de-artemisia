@@ -101,6 +101,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           token.soundEnabled = dbUser.soundEnabled;
           token.animationsEnabled = dbUser.animationsEnabled;
           token.allowGoogleLogin = dbUser.allowGoogleLogin;
+          token.emailOptIn = dbUser.emailOptIn;
           token.provider = dbUser.provider;
         }
       }
@@ -115,6 +116,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           token.soundEnabled = dbUser.soundEnabled;
           token.animationsEnabled = dbUser.animationsEnabled;
           token.allowGoogleLogin = dbUser.allowGoogleLogin;
+          token.emailOptIn = dbUser.emailOptIn;
           token.provider = dbUser.provider;
         }
       }
@@ -131,6 +133,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         (session.user as any).soundEnabled = token.soundEnabled ?? true;
         (session.user as any).animationsEnabled = token.animationsEnabled ?? true;
         (session.user as any).allowGoogleLogin = token.allowGoogleLogin ?? true;
+        (session.user as any).emailOptIn = token.emailOptIn ?? true;
         (session.user as any).provider = token.provider ?? "credentials";
       }
       return session;

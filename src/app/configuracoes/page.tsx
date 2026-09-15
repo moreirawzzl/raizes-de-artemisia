@@ -227,6 +227,26 @@ export default function ConfiguracoesPage() {
           </div>
         </section>
       )}
+
+      {/* Preferências de comunicação */}
+      <section className="rounded-xl2 border border-bege-claro bg-white p-6">
+        <h2 className="mb-4 font-display text-xl text-verde-principal">Preferências de comunicação</h2>
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-verde-principal">Quero receber e-mails da Raízes de Artemísia</span>
+          <Toggle
+            checked={user?.emailOptIn ?? true}
+            onChange={async (v) => {
+              await fetch("/api/settings", {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ emailOptIn: v })
+              });
+              await update();
+              playSound(v ? "success" : "toggle");
+            }}
+          />
+        </div>
+      </section>
     </main>
   );
 }

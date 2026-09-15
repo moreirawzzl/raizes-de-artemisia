@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/Button";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const [form, setForm] = useState({ username: "", email: "", password: "", confirmPassword: "" });
+  const [form, setForm] = useState({ username: "", email: "", password: "", confirmPassword: "", emailOptIn: true });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const score = passwordStrengthScore(form.password);
@@ -83,6 +83,18 @@ export default function RegisterPage() {
           <div>
             <Label>Confirmar senha</Label>
             <Input type="password" required value={form.confirmPassword} onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })} />
+          </div>
+          <div className="flex items-start gap-2 pt-1">
+            <input
+              type="checkbox"
+              id="emailOptIn"
+              checked={form.emailOptIn}
+              onChange={(e) => setForm({ ...form, emailOptIn: e.target.checked })}
+              className="mt-0.5"
+            />
+            <label htmlFor="emailOptIn" className="text-[11.5px] leading-snug text-verde-secundario">
+              Quero receber e-mails da Raízes de Artemísia
+            </label>
           </div>
           <Button type="submit" disabled={loading} className="w-full">
             {loading ? "Criando..." : "Criar minha conta"}
