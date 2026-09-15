@@ -7,6 +7,7 @@ import { formatMoney } from "@/lib/format";
 import { useSettings } from "@/components/providers/SettingsProvider";
 import { useFavorites } from "@/components/providers/FavoritesProvider";
 import { useSession } from "next-auth/react";
+import { TagBadge } from "@/components/store/TagBadge";
 
 interface Props {
   product: {
@@ -17,6 +18,7 @@ interface Props {
     price: string;
     stock: number;
     images: { url: string }[];
+    tags?: { id: string; name: string; bgColor: string; borderColor: string; textColor: string }[];
   };
 }
 
@@ -67,6 +69,11 @@ export function ProductCard({ product }: Props) {
           ) : null}
         </div>
         <div className="flex flex-1 flex-col p-4">
+          {product.tags && product.tags.length > 0 && (
+            <div className="mb-1.5 flex flex-wrap gap-1.5">
+              {product.tags.map((t) => <TagBadge key={t.id} tag={t} />)}
+            </div>
+          )}
           <h3 className="font-display text-lg text-verde-principal">{product.name}</h3>
           <p className="mt-1 line-clamp-2 flex-1 text-[11.5px] text-bege-escuro">{product.description}</p>
           <div className="mt-3 flex items-center justify-between">

@@ -28,18 +28,22 @@ function buildOrderBy(sort?: string): Prisma.ProductOrderByWithRelationInput {
 export default async function LojaPage({
   searchParams
 }: {
-  searchParams: Promise<{ q?: string; sort?: string }>;
+  searchParams: Promise<{ q?: string; sort?: string; tag?: string }>;
 }) {
-  const { q, sort } = await searchParams;
+  const { q, sort, tag } = await searchParams;
 
-  const products = await prisma.product.findMany({
-    where: {
-      hidden: false,
-      ...(q ? { name: { contains: q, mode: "insensitive" } } : {})
-    },
-    include: { images: true },
-    orderBy: buildOrderBy(sort)
-  });
+  const [products, availableTags] = await Promise.all([
+    prisma.product.findMany({
+      where: {
+        hidden: false,
+        ...(q ? { name: { contains: q, mode: "insensitive" } } : {}),
+        ...(tag ? { tags: { some: { name: tag } } } : {})
+      },
+      include: { images: true, tags: true },
+      orderBy: buildOrderBy(sort)
+    }),
+    prisma.tag.findMany({ orderBy: { name: "asc" } })
+  ]);
 
   return (
     <main className="pb-16">
@@ -47,9 +51,18 @@ export default async function LojaPage({
         <h1 className="font-display text-4xl text-verde-principal">Nossos produtos</h1>
         <p className="mt-1 text-[12.5px] tracking-[1.5px] uppercase text-verde-secundario">Produção Artesanal</p>
       </div>
-      <SearchSortBar />
+      <SearchSortBar availableTags={availableTags} />
       <div className="mx-auto max-w-6xl px-6">
-        <ProductGrid products={products as any} />
+        <p className="mb-4 text-xs text-verde-secundario">
+          {products.length} {products.length === 1 ? "produto encontrado" : "produtos encontrados"}
+        </p>
+        {products.length === 0 && (q || tag) ? (
+          <div className="rounded-xl2 border border-dashed border-bege-claro py-16 text-center text-sm text-verde-secundario">
+            Nenhum produto encontrado com esses filtros. 🌿
+          </div>
+        ) : (
+          <ProductGrid products={products as any} />
+        )}
       </div>
     </main>
   );

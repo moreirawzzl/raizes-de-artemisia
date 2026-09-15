@@ -9,6 +9,7 @@ interface Props {
     price: string;
     stock: number;
     images: { url: string }[];
+    tags?: { id: string; name: string; bgColor: string; borderColor: string; textColor: string }[];
   }[];
 }
 
