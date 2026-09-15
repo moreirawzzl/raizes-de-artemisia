@@ -4,6 +4,7 @@ import Google from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { loginSchema } from "@/lib/password";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true,
@@ -14,17 +15,25 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     Credentials({
       name: "credentials",
       credentials: {
-        email: { label: "E-mail", type: "email" },
+        email: { label: "E-mail ou usuário", type: "text" },
         password: { label: "Senha", type: "password" }
       },
       async authorize(raw) {
         const parsed = loginSchema.safeParse(raw);
         if (!parsed.success) return null;
-        const { email, password } = parsed.data;
+        const { email: identifier, password } = parsed.data;
 
-        const user = await prisma.user.findUnique({ where: { email } });
+        // Rate limit por identificador — trava força bruta de senha sem
+        // depender só do IP (que pode ser compartilhado/proxied).
+        const limit = await checkRateLimit(`login:${identifier.toLowerCase()}`, 10, 15 * 60);
+        if (!limit.allowed) throw new Error("RATE_LIMITED");
+
+        const isEmail = identifier.includes("@");
+        const user = await prisma.user.findUnique({
+          where: isEmail ? { email: identifier.trim().toLowerCase() } : { username: identifier.trim() }
+        });
         if (!user || !user.hasPassword || !user.passwordHash) return null;
-        if (user.banned) throw new Error("BANNED");
+        if (user.banned) throw new Error(`BANNED:${encodeURIComponent(user.banReason || "Não especificado")}`);
 
         const valid = await bcrypt.compare(password, user.passwordHash);
         if (!valid) return null;
@@ -71,7 +80,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               }
             });
           } else if (existing.banned) {
-            return "/login?erro=banido";
+            return `/banido?motivo=${encodeURIComponent(existing.banReason || "Não especificado")}`;
           } else if (!existing.allowGoogleLogin) {
             return "/login?erro=google-desativado";
           } else if (!existing.avatarUrl && user.image) {

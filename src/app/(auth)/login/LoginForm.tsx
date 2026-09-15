@@ -4,6 +4,7 @@ import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import { Eye, EyeOff } from "lucide-react";
 import { googleSignIn } from "../actions";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
@@ -14,6 +15,7 @@ export default function LoginPage() {
   const params = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -23,13 +25,16 @@ export default function LoginPage() {
     setError(null);
     const res = await signIn("credentials", { email, password, redirect: false });
     setLoading(false);
-    if (res?.error) { 
-      if (res.error === "BANNED" || res.error.includes("BANNED")) {
-        setError("Sua conta foi suspensa. Entre em contato para mais informações.");
+    if (res?.error) {
+      if (res.error.startsWith("BANNED")) {
+        const motivo = res.error.split(":")[1] || "";
+        router.push(`/banido?motivo=${motivo}`);
+      } else if (res.error === "RATE_LIMITED") {
+        setError("Muitas tentativas de login. Aguarde alguns minutos e tente novamente.");
       } else {
-        setError("E-mail ou senha incorretos.");
+        setError("E-mail/usuário ou senha incorretos.");
       }
-      return; 
+      return;
     }
     router.push("/loja");
     router.refresh();
@@ -51,11 +56,6 @@ export default function LoginPage() {
         {params.get("erro") === "google-desativado" && (
           <div className="mb-4 rounded-lg bg-[#F6E7E1] px-3 py-2 text-xs text-[#8a4a3a]">
             Login com Google está desativado para esta conta. Entre com e-mail e senha.
-          </div>
-        )}
-        {params.get("erro") === "banido" && (
-          <div className="mb-4 rounded-lg bg-[#F6E7E1] px-3 py-2 text-xs text-[#8a4a3a]">
-            Sua conta foi suspensa. Entre em contato para mais informações.
           </div>
         )}
         {params.get("error") && (
@@ -83,12 +83,22 @@ export default function LoginPage() {
 
         <form onSubmit={onSubmit} className="space-y-3.5 text-left">
           <div>
-            <Label>E-mail</Label>
-            <Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+            <Label>E-mail ou usuário</Label>
+            <Input type="text" required value={email} onChange={(e) => setEmail(e.target.value)} />
           </div>
           <div>
             <Label>Senha</Label>
-            <Input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+            <div className="relative">
+              <Input type={showPassword ? "text" : "password"} required value={password} onChange={(e) => setPassword(e.target.value)} className="pr-10" />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-verde-secundario"
+                tabIndex={-1}
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
           </div>
           <Button type="submit" disabled={loading} className="w-full">{loading ? "Entrando..." : "Entrar"}</Button>
         </form>

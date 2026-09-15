@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
+import { Eye, EyeOff } from "lucide-react";
 import { googleSignIn } from "../actions";
 import { passwordStrengthScore } from "@/lib/password";
 import { Input } from "@/components/ui/Input";
@@ -15,6 +16,8 @@ export default function RegisterPage() {
   const [form, setForm] = useState({ username: "", email: "", password: "", confirmPassword: "", emailOptIn: true });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const score = passwordStrengthScore(form.password);
 
   async function onSubmit(e: React.FormEvent) {
@@ -63,10 +66,25 @@ export default function RegisterPage() {
           <div>
             <Label>E-mail</Label>
             <Input type="email" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+            <p className="mt-1.5 text-[10.5px] leading-relaxed text-bege-escuro">
+              Use um e-mail de verdade — se você esquecer a senha, é pra ele que enviamos o código de recuperação.
+            </p>
           </div>
           <div>
             <Label>Senha</Label>
-            <Input type="password" required minLength={8} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
+            <div className="relative">
+              <Input
+                type={showPassword ? "text" : "password"}
+                required
+                minLength={8}
+                value={form.password}
+                onChange={(e) => setForm({ ...form, password: e.target.value })}
+                className="pr-10"
+              />
+              <button type="button" onClick={() => setShowPassword((v) => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-verde-secundario" tabIndex={-1}>
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
             <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-bege-claro">
               <div
                 className="h-full transition-all"
@@ -82,7 +100,18 @@ export default function RegisterPage() {
           </div>
           <div>
             <Label>Confirmar senha</Label>
-            <Input type="password" required value={form.confirmPassword} onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })} />
+            <div className="relative">
+              <Input
+                type={showConfirmPassword ? "text" : "password"}
+                required
+                value={form.confirmPassword}
+                onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })}
+                className="pr-10"
+              />
+              <button type="button" onClick={() => setShowConfirmPassword((v) => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-verde-secundario" tabIndex={-1}>
+                {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
           </div>
           <div className="flex items-start gap-2 pt-1">
             <input

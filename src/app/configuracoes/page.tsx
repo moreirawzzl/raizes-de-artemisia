@@ -47,6 +47,7 @@ export default function ConfiguracoesPage() {
   const [username, setUsername] = useState(user?.username || "");
   const [savingUsername, setSavingUsername] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [pwMsg, setPwMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
@@ -55,6 +56,12 @@ export default function ConfiguracoesPage() {
   async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // Preview instantâneo, antes mesmo do upload terminar — assim a pessoa
+    // já vê a foto escolhida em vez de ficar olhando pra foto antiga.
+    const localUrl = URL.createObjectURL(file);
+    setAvatarPreview(localUrl);
+
     setUploadingAvatar(true);
     const formData = new FormData();
     formData.append("files", file);
@@ -69,7 +76,11 @@ export default function ConfiguracoesPage() {
       });
       await update();
       playSound("success");
+    } else {
+      playSound("error");
     }
+    URL.revokeObjectURL(localUrl);
+    setAvatarPreview(null);
   }
 
   async function handleUsernameSave() {
@@ -120,7 +131,8 @@ export default function ConfiguracoesPage() {
         <h2 className="mb-4 font-display text-xl text-verde-principal">Foto de perfil</h2>
         <div className="flex items-center gap-4">
           <Image
-            src={user?.avatarUrl || user?.image || "/images/monogram.jpg"}
+            src={avatarPreview || user?.avatarUrl || user?.image || "/images/monogram.jpg"}
+            unoptimized={!!avatarPreview}
             alt=""
             width={64}
             height={64}

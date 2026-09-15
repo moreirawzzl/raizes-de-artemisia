@@ -124,12 +124,16 @@ function isSeriousViolation(categories: any): boolean {
  * 2. Bloqueia conteúdo grave via OpenAI
  */
 export async function moderateMessage(text: string) {
+  // O filtro de palavrão local roda SEMPRE, com ou sem OpenAI configurada —
+  // era exatamente esse o requisito, mas antes o sanitize() só acontecia
+  // dentro do try da chamada à OpenAI, então sem a key nada era censurado.
+  const sanitized = sanitizeMessage(text);
+
   if (!process.env.OPENAI_API_KEY) {
-    console.error("OPENAI_API_KEY não configurada.");
     return {
       flagged: false,
       shouldBlock: false,
-      sanitized: text,
+      sanitized,
       error: true,
     };
   }
@@ -147,14 +151,11 @@ export async function moderateMessage(text: string) {
     // 2. Verificar se tem conteúdo grave
     const hasSerious = isSeriousViolation(result.categories);
 
-    // 3. Sanitizar palavrões em português
-    const sanitized = sanitizeMessage(text);
-
     return {
       flagged: result.flagged,
       categories: result.categories,
       shouldBlock: hasSerious, // Bloquear APENAS conteúdo grave
-      sanitized: sanitized, // Texto com palavrões censurados
+      sanitized, // Texto com palavrões censurados
       error: false,
     };
   } catch (error) {
@@ -162,7 +163,7 @@ export async function moderateMessage(text: string) {
     return {
       flagged: false,
       shouldBlock: false,
-      sanitized: text,
+      sanitized,
       error: true,
     };
   }
