@@ -57,13 +57,30 @@ async function sendMessage(u: UserRow) {
   else playSound("error");
 }
 
+  async function deleteUser(u: UserRow) {
+    if (!confirm(`Excluir ${u.username} permanentemente? Essa ação não pode ser desfeita.`)) return;
+    const res = await fetch(`/api/admin/users/${u.id}`, { method: "DELETE" });
+    const data = await res.json().catch(() => ({}));
+    if (res.ok) {
+      setUsers((prev) => prev.filter((x) => x.id !== u.id));
+      playSound("success");
+    } else {
+      alert(data.error || "Erro ao excluir usuário");
+      playSound("error");
+    }
+  }
+
   async function toggleBan(u: UserRow) {
     const newBanned = !u.banned;
     let reason = "";
     if (newBanned) {
-      const input = prompt(`Tem certeza que deseja banir ${u.username}? Digite o motivo (opcional):`);
+      const input = prompt(`Banir ${u.username} — digite o motivo (obrigatório):`);
       if (input === null) return;
       reason = input.trim();
+      if (!reason) {
+        alert("O motivo do banimento é obrigatório.");
+        return;
+      }
     } else {
       if (!confirm(`Deseja desbanir ${u.username}?`)) return;
     }
@@ -146,6 +163,13 @@ async function sendMessage(u: UserRow) {
                   className="ml-3 text-xs text-[#A00] underline disabled:opacity-30"
                 >
                   {u.banned ? "desbanir" : "banir"}
+                </button>
+                <button
+                  onClick={() => deleteUser(u)}
+                  disabled={(session?.user as any)?.id === u.id}
+                  className="ml-3 text-xs text-[#A00] underline disabled:opacity-30"
+                >
+                  excluir
                 </button>
               </td>
             </tr>

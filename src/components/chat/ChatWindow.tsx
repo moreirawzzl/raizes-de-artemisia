@@ -115,6 +115,17 @@ export function ChatWindow({ initialMessages, isAdmin = false, userId }: ChatWin
     setEditBody(msg.body);
   }
 
+  async function handleDelete(msgId: string) {
+    if (!confirm("Excluir esta mensagem?")) return;
+    const res = await fetch(`/api/messages/${msgId}/delete`, { method: "DELETE" });
+    if (res.ok) {
+      setMessages((prev) => prev.filter((m) => m.id !== msgId));
+      playSound("success");
+    } else {
+      playSound("error");
+    }
+  }
+
   const myRole = isAdmin ? "ADMIN" : "USER";
 
   return (
@@ -131,6 +142,7 @@ export function ChatWindow({ initialMessages, isAdmin = false, userId }: ChatWin
           const isEditing = editingId === msg.id;
           const fifteenMinsAgo = Date.now() - 15 * 60 * 1000;
           const canEdit = isMine && new Date(msg.createdAt).getTime() > fifteenMinsAgo;
+          const canDelete = isMine || isAdmin;
 
           return (
             <div
@@ -195,6 +207,20 @@ export function ChatWindow({ initialMessages, isAdmin = false, userId }: ChatWin
                       >
                         <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
                         <path d="m15 5 4 4" />
+                      </svg>
+                    </button>
+                  )}
+                  {canDelete && (
+                    <button
+                      onClick={() => handleDelete(msg.id)}
+                      title="Excluir mensagem"
+                      aria-label="Excluir mensagem"
+                      className={`absolute top-1 opacity-0 transition-opacity group-hover:opacity-100 hover:opacity-100 ${
+                        isMine ? "-left-[70px] text-[#b95c48]" : "-right-[70px] text-[#b95c48]"
+                      } ${canEdit ? "" : isMine ? "-left-9" : "-right-9"}`}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M3 6h18" /><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h14Z" /><path d="M10 11v6" /><path d="M14 11v6" />
                       </svg>
                     </button>
                   )}

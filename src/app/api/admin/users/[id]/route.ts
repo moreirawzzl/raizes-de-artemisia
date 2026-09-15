@@ -26,10 +26,13 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     if ((me as any).id === id && banned === true) {
       return NextResponse.json({ error: "Você não pode banir a si mesmo" }, { status: 400 });
     }
+    if (banned === true && !reason?.trim()) {
+      return NextResponse.json({ error: "Informe o motivo do banimento" }, { status: 400 });
+    }
     updateData.banned = banned;
     if (banned) {
       updateData.bannedAt = new Date();
-      updateData.banReason = reason || null;
+      updateData.banReason = reason.trim();
     } else {
       updateData.bannedAt = null;
       updateData.banReason = null;
@@ -83,4 +86,38 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   }
 
   return NextResponse.json(user);
+}
+
+export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const me = await requireAdmin();
+  const { id } = await params;
+
+  if ((me as any).id === id) {
+    return NextResponse.json({ error: "Você não pode excluir a si mesmo" }, { status: 400 });
+  }
+
+  const user = await prisma.user.findUnique({ where: { id } });
+  if (!user) return NextResponse.json({ error: "Usuário não encontrado" }, { status: 404 });
+
+  // Order não tem onDelete: Cascade pro User de propósito (é histórico
+  // financeiro) — não dá pra apagar quem já fez pedido. Sugere banir.
+  const orderCount = await prisma.order.count({ where: { userId: id } });
+  if (orderCount > 0) {
+    return NextResponse.json(
+      { error: `Esse usuário tem ${orderCount} pedido(s) no histórico e não pode ser excluído — use banir em vez de excluir.` },
+      { status: 409 }
+    );
+  }
+
+  // onDelete: Cascade no schema cuida do resto (carrinho, favoritos,
+  // mensagens, avaliações etc.) associados a esse usuário.
+  await prisma.user.delete({ where: { id } });
+
+  await logAdminAction({
+    adminId: (me as any).id,
+    action: "DELETE_USER",
+    details: `${user.username} (${user.email})`
+  });
+
+  return NextResponse.json({ ok: true });
 }

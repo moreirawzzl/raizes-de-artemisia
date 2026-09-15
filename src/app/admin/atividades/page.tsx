@@ -33,7 +33,8 @@ export default async function AdminAtividadesPage() {
     BROADCAST: "📢 Enviou aviso pra todos os usuários",
     CREATE_TAG: "🏷️ Criou etiqueta",
     UPDATE_TAG: "🏷️ Editou etiqueta",
-    DELETE_TAG: "🏷️ Excluiu etiqueta"
+    DELETE_TAG: "🏷️ Excluiu etiqueta",
+    DELETE_USER: "🗑️ Excluiu usuário"
   };
 
   return (
