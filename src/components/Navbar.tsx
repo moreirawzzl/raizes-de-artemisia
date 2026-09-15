@@ -43,6 +43,13 @@ export async function Navbar() {
           </Link>
 
           <Link
+            href="/encomendas"
+            className="transition-colors hover:text-verde-secundario"
+          >
+            Encomendas
+          </Link>
+
+          <Link
             href="/favoritos"
             className="transition-colors hover:text-verde-secundario"
           >
