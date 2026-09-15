@@ -28,7 +28,7 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
     <button
       type="button"
       onClick={() => onChange(!checked)}
-      className={`relative h-6 w-11 rounded-full transition-colors ${checked ? "bg-verde-principal" : "bg-bege-claro"}`}
+      className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${checked ? "bg-verde-principal" : "bg-bege-claro"}`}
     >
       <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${checked ? "translate-x-5" : "translate-x-0.5"}`} />
     </button>
@@ -222,8 +222,8 @@ export default function ConfiguracoesPage() {
       {user?.provider === "google" && (
         <section className="rounded-xl2 border border-bege-claro bg-white p-6">
           <h2 className="mb-4 font-display text-xl text-verde-principal">Login com Google</h2>
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-verde-principal">Permitir entrar com Google nesta conta</span>
+          <div className="flex items-center justify-between gap-4">
+            <span className="min-w-0 flex-1 text-sm text-verde-principal">Permitir entrar com Google nesta conta</span>
             <Toggle
               checked={user?.allowGoogleLogin ?? true}
               onChange={async (v) => {
@@ -243,8 +243,8 @@ export default function ConfiguracoesPage() {
       {/* Preferências de comunicação */}
       <section className="rounded-xl2 border border-bege-claro bg-white p-6">
         <h2 className="mb-4 font-display text-xl text-verde-principal">Preferências de comunicação</h2>
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-verde-principal">Quero receber e-mails da Raízes de Artemísia</span>
+        <div className="flex items-center justify-between gap-4">
+          <span className="min-w-0 flex-1 text-sm text-verde-principal">Quero receber e-mails da Raízes de Artemísia</span>
           <Toggle
             checked={user?.emailOptIn ?? true}
             onChange={async (v) => {
