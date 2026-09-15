@@ -1,6 +1,3 @@
--- AlterTable
-ALTER TABLE "User" ADD COLUMN     "emailOptIn" BOOLEAN NOT NULL DEFAULT true;
-
 -- CreateTable
 CREATE TABLE "Tag" (
     "id" TEXT NOT NULL,

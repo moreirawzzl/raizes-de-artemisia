@@ -13,7 +13,7 @@ public/uploads/*
 .ethereal_creds.json
 *.bak
 *.tmp
-.GuiaParaAgentes
+AGENTS.md
 *.tsbuildinfo
 .todo.json
 todo.md
