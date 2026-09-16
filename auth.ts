@@ -102,6 +102,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             data: { lastLoginAt: new Date() }
           });
           token.id = dbUser.id;
+          token.name = dbUser.username;
+          token.username = dbUser.username;
           token.role = dbUser.role;
           token.hasPassword = dbUser.hasPassword;
           token.avatarUrl = dbUser.avatarUrl;
@@ -117,6 +119,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (trigger === "update" && token.id) {
         const dbUser = await prisma.user.findUnique({ where: { id: token.id as string } });
         if (dbUser) {
+          token.name = dbUser.username;
+          token.username = dbUser.username;
           token.role = dbUser.role;
           token.hasPassword = dbUser.hasPassword;
           token.avatarUrl = dbUser.avatarUrl;
@@ -134,6 +138,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async session({ session, token }) {
       if (session.user) {
         (session.user as any).id = token.id;
+        session.user.name = (token.name as string) ?? session.user.name;
+        (session.user as any).username = token.username;
         (session.user as any).role = token.role;
         (session.user as any).hasPassword = token.hasPassword;
         (session.user as any).avatarUrl = token.avatarUrl;

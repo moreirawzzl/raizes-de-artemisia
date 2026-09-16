@@ -61,7 +61,16 @@ export default function RegisterPage() {
         <form onSubmit={onSubmit} className="space-y-3.5 text-left">
           <div>
             <Label>Usuário</Label>
-            <Input required minLength={3} value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} />
+            <div className="relative">
+              <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-verde-secundario">@</span>
+              <Input
+                required
+                minLength={3}
+                value={form.username}
+                onChange={(e) => setForm({ ...form, username: e.target.value.replace(/^@+/, "") })}
+                className="pl-7"
+              />
+            </div>
           </div>
           <div>
             <Label>E-mail</Label>

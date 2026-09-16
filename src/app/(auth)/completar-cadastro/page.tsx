@@ -17,6 +17,10 @@ export default function CompletarCadastroPage() {
   const { data: session, status, update } = useSession();
   const router = useRouter();
   const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("");
+  const [usernameSaved, setUsernameSaved] = useState(false);
+  const [savingUsername, setSavingUsername] = useState(false);
+  const [usernameError, setUsernameError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -25,7 +29,27 @@ export default function CompletarCadastroPage() {
     if (status === "authenticated" && (session?.user as any)?.hasPassword) {
       router.push("/loja");
     }
-  }, [status, session, router]);
+    if (status === "authenticated" && !username) {
+      setUsername((session?.user as any)?.username || session?.user?.name || "");
+    }
+  }, [status, session, router, username]);
+
+  async function saveUsername() {
+    const clean = username.trim().replace(/^@+/, "");
+    if (clean.length < 3) { setUsernameError("Mínimo 3 caracteres."); return; }
+    setSavingUsername(true);
+    setUsernameError(null);
+    const res = await fetch("/api/settings", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username: clean })
+    });
+    const data = await res.json();
+    setSavingUsername(false);
+    if (!res.ok) { setUsernameError(data.error || "Esse @ já está em uso."); return; }
+    await update();
+    setUsernameSaved(true);
+  }
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -58,6 +82,29 @@ export default function CompletarCadastroPage() {
         </p>
 
         {error && <div className="mb-4 rounded-lg bg-[#F6E7E1] px-3 py-2 text-left text-xs text-[#8a4a3a]">{error}</div>}
+
+        <div className="mb-6 text-left">
+          <Label>Seu @ (nome de usuário)</Label>
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-verde-secundario">@</span>
+              <Input
+                value={username}
+                onChange={(e) => { setUsername(e.target.value.replace(/^@+/, "")); setUsernameSaved(false); }}
+                minLength={3}
+                maxLength={24}
+                className="pl-7"
+              />
+            </div>
+            <Button type="button" onClick={saveUsername} disabled={savingUsername}>
+              {savingUsername ? "..." : usernameSaved ? "Salvo ✓" : "Salvar"}
+            </Button>
+          </div>
+          {usernameError && <p className="mt-1.5 text-[11px] text-[#8a4a3a]">{usernameError}</p>}
+          <p className="mt-1.5 text-[10.5px] leading-relaxed text-bege-escuro">
+            É com esse @ que você também vai poder entrar no site (além do Google).
+          </p>
+        </div>
 
         <form onSubmit={onSubmit} className="space-y-3.5 text-left">
           <div>

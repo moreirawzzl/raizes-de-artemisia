@@ -4,6 +4,7 @@ import { getCurrentUser } from "@/lib/auth-helpers";
 import { CartIndicator } from "./store/CartIndicator";
 import { signOut } from "../../auth";
 import { NotificationBell } from "./NotificationBell";
+import { UserBadge } from "./UserBadge";
 
 export async function Navbar() {
   const user = await getCurrentUser();
@@ -93,26 +94,7 @@ export async function Navbar() {
               </Link>
               <CartIndicator />
 
-              <Link
-                href="/perfil"
-                className="flex items-center gap-2"
-              >
-                <Image
-                  src={
-                    (user as any).avatarUrl ||
-                    (user as any).image ||
-                    "/images/monogram.jpg"
-                  }
-                  alt=""
-                  width={28}
-                  height={28}
-                  className="h-7 w-7 rounded-full border border-bege-claro object-cover"
-                />
-
-                <span className="hidden whitespace-nowrap text-xs text-verde-secundario sm:inline">
-                  {user.name}
-                </span>
-              </Link>
+              <UserBadge initialName={user.name ?? ""} initialAvatarUrl={(user as any).avatarUrl ?? (user as any).image ?? null} />
 
               <form
                 action={async () => {

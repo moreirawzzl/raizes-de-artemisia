@@ -147,7 +147,16 @@ export default function ConfiguracoesPage() {
         <div className="mt-5">
           <Label>Nome de usuário</Label>
           <div className="flex gap-2">
-            <Input value={username} onChange={(e) => setUsername(e.target.value)} minLength={3} maxLength={24} />
+            <div className="relative flex-1">
+              <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-verde-secundario">@</span>
+              <Input
+                value={username}
+                onChange={(e) => setUsername(e.target.value.replace(/^@+/, ""))}
+                minLength={3}
+                maxLength={24}
+                className="pl-7"
+              />
+            </div>
             <Button type="button" onClick={handleUsernameSave} disabled={savingUsername}>
               {savingUsername ? "Salvando..." : "Salvar"}
             </Button>
