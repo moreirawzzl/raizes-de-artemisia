@@ -4,7 +4,7 @@ import { formatMoney } from "@/lib/format";
 import { ProductGrid } from "@/components/store/ProductGrid";
 import { AddToCartPanel } from "@/components/store/AddToCartPanel";
 import { ViewTracker } from "@/components/store/ViewTracker";
-import Image from "next/image";
+import { ProductGallery } from "@/components/store/ProductGallery";
 import { FavoriteButton } from "@/components/store/FavoriteButton";
 import { ProductReviews } from "@/components/store/ProductReviews";
 import type { Metadata } from "next";
@@ -67,28 +67,7 @@ export default async function ProdutoPage({ params }: { params: Promise<{ id: st
         {/* ── COLUNA ESQUERDA: imagem ── */}
         <div className="product-image-col">
           <div className="product-image-sticky">
-            {/* Imagem principal */}
-            <div className="product-image-main">
-              <Image
-                src={product.images[0]?.url || "/images/monogram.jpg"}
-                alt={product.name}
-                fill
-                sizes="(max-width: 768px) 100vw, 45vw"
-                className="object-contain"
-                priority
-              />
-            </div>
-
-            {/* Thumbnails */}
-            {product.images.length > 1 && (
-              <div className="flex gap-2 mt-3 justify-center">
-                {product.images.slice(1).map((img) => (
-                  <div key={img.id} className="relative h-16 w-16 overflow-hidden rounded-lg bg-bege-claro border border-bege-claro">
-                    <Image src={img.url} alt="" fill className="object-cover" />
-                  </div>
-                ))}
-              </div>
-            )}
+            <ProductGallery images={product.images} productName={product.name} />
           </div>
         </div>
 

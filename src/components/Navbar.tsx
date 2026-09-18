@@ -5,6 +5,7 @@ import { CartIndicator } from "./store/CartIndicator";
 import { signOut } from "../../auth";
 import { NotificationBell } from "./NotificationBell";
 import { UserBadge } from "./UserBadge";
+import { MobileMenu } from "./MobileMenu";
 
 export async function Navbar() {
   const user = await getCurrentUser();
@@ -69,6 +70,7 @@ export async function Navbar() {
 
         {/* ÁREA DO USUÁRIO */}
         <div className="flex shrink-0 items-center gap-4 font-body">
+          <MobileMenu isAdmin={user?.role === "ADMIN"} isLoggedIn={!!user} />
           {user ? (
             <>
               <NotificationBell />

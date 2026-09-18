@@ -2,6 +2,7 @@
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useFavorites } from "@/components/providers/FavoritesProvider";
+import { motion } from "framer-motion";
 
 export function FavoriteButton({ productId }: { productId: string }) {
   const { data: session } = useSession();
@@ -14,9 +15,20 @@ export function FavoriteButton({ productId }: { productId: string }) {
       onClick={() => (session?.user ? toggleFavorite(productId) : router.push("/login"))}
       className="mt-3 flex items-center gap-2 text-sm text-verde-secundario"
     >
-      <svg width="18" height="18" viewBox="0 0 24 24" fill={favorited ? "#B95C48" : "none"} stroke={favorited ? "#B95C48" : "#8A9A7B"} strokeWidth="2">
+      <motion.svg
+        key={favorited ? "on" : "off"}
+        initial={favorited ? { scale: 0.6 } : false}
+        animate={{ scale: 1 }}
+        transition={{ type: "spring", stiffness: 500, damping: 15 }}
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill={favorited ? "#B95C48" : "none"}
+        stroke={favorited ? "#B95C48" : "#8A9A7B"}
+        strokeWidth="2"
+      >
         <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z" />
-      </svg>
+      </motion.svg>
       {favorited ? "Nos favoritos" : "Adicionar aos favoritos"}
     </button>
   );
